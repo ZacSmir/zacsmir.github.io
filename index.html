@@ -40,9 +40,9 @@
         }
 
         .hover-area:hover {
-            border-color: #ffff00;
-            background: rgba(255, 255, 0, 0.2);
-            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+            border-color: #6424c5;
+            background: rgba(200, 165, 222, 0.2);
+            box-shadow: 0 0 20px rgba(58, 48, 70, 0.5);
         }
 
         .tooltip {
@@ -82,21 +82,66 @@
         <img src="HomePage.png" alt="Main Image" class="main-image">
         
         <!-- Hover areas - adjust position and size for your image -->
-        <div class="hover-area" style="top: 20%; left: 10%; width: 150px; height: 100px;">
-            <div class="tooltip">This is the bookshelf area</div>
+        <div class="hover-area" style="top: 30%; left: 55%; width: 190px; height: 280px;" onclick="handleAreaClick(this)" data-action="book">
+            <div class="tooltip">This is my bookshelf from when I was in undergrad! Click for book reviews.</div>
         </div>
         
-        <div class="hover-area" style="top: 50%; right: 15%; width: 200px; height: 120px;">
-            <div class="tooltip">Click here for the bedroom</div>
+        <div class="hover-area" style="top: 57%; right: 5%; width: 180px; height: 120px;" onclick="handleAreaClick(this)" data-action="music">
+            <div class="tooltip">I got this record player for nine dollars. Click for music reviews.</div>
         </div>
         
-        <div class="hover-area" style="bottom: 25%; left: 30%; width: 180px; height: 80px;">
-            <div class="tooltip">Window with a beautiful view</div>
+        <div class="hover-area" style="top: 16%; left: 7%; width: 195px; height: 180px;" onclick="handleAreaClick(this)" data-action="outside">
+            <div class="tooltip">Let's go outside! Click for my serious writing</div>
         </div>
         
-        <div class="hover-area" style="top: 35%; left: 50%; width: 80px; height: 80px;">
-            <div class="tooltip">Reading lamp</div>
+        <div class="hover-area" style="top: 24%; left: 31%; width: 125px; height: 215px;" onclick="handleAreaClick(this)" data-action="me">
+            <div class="tooltip">Hi! Click to learn more about me</div>
+        </div>
+        <div class="hover-area" style="top: 40%; left: 4%; width: 280px; height: 300px;" onclick="handleAreaClick(this)" data-action="bed">
+            <div class="tooltip">My childhood bed. Click for more random material</div>
         </div>
     </div>
+
+    <script>
+        let activeArea = null;
+
+        function handleAreaClick(element) {
+            // If this area is already active, treat as actual click
+            if (element.classList.contains('active')) {
+                // Perform the actual action here
+                const action = element.getAttribute('data-action');
+                alert(`Clicked on ${action}! You could navigate to ${action}.html`);
+                // window.location.href = action + '.html';
+                return;
+            }
+            
+            // Deactivate any currently active area
+            if (activeArea) {
+                activeArea.classList.remove('active');
+            }
+            
+            // Activate the clicked area
+            element.classList.add('active');
+            activeArea = element;
+        }
+
+        // Deselect when clicking outside any hover area
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.hover-area') && activeArea) {
+                activeArea.classList.remove('active');
+                activeArea = null;
+            }
+        });
+
+        // Prevent clicks on the image from deselecting
+        document.querySelector('.main-image').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Touch event handling for better mobile experience
+        document.addEventListener('touchstart', function(e) {
+            // This helps with touch responsiveness
+        }, {passive: true});
+    </script>
 </body>
 </html>
