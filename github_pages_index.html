@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Homepage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        .hover-area {
+            position: absolute;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hover-area:hover {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .hover-area:hover .tooltip {
+            opacity: 1;
+            transform: translateY(-40px);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <!-- Replace 'your-image.jpg' with your actual image file -->
+        <img src="https://via.placeholder.com/800x600/4a90e2/ffffff?text=Your+Image+Here" alt="Main Image" class="main-image">
+        
+        <!-- Hover areas - adjust position and size for your image -->
+        <div class="hover-area" style="top: 20%; left: 10%; width: 150px; height: 100px;">
+            <div class="tooltip">This is the bookshelf area</div>
+        </div>
+        
+        <div class="hover-area" style="top: 50%; right: 15%; width: 200px; height: 120px;">
+            <div class="tooltip">Click here for the bedroom</div>
+        </div>
+        
+        <div class="hover-area" style="bottom: 25%; left: 30%; width: 180px; height: 80px;">
+            <div class="tooltip">Window with a beautiful view</div>
+        </div>
+        
+        <div class="hover-area" style="top: 35%; left: 50%; width: 80px; height: 80px;">
+            <div class="tooltip">Reading lamp</div>
+        </div>
+    </div>
+</body>
+</html>
