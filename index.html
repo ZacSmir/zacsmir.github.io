@@ -26,6 +26,11 @@
             align-items: center;
         }
 
+        .image-wrapper {
+            position: relative;      /* for hover-area to be relative to this */
+            display: inline-block;   /* shrink-wrap to the image */
+        }
+
         .main-image {
             max-width: 100%;
             max-height: 100%;
@@ -78,27 +83,29 @@
 </head>
 <body>
     <div class="image-container">
-        <!-- Replace 'your-image.jpg' with your actual image file -->
-        <img src="HomePage.png" alt="Main Image" class="main-image">
-        
-        <!-- Hover areas - adjust position and size for your image -->
-        <div class="hover-area" style="top: 30%; left: 55%; width: 22vw; height: 38vh;" onclick="handleAreaClick(this)" data-action="book">
-            <div class="tooltip">This is my bookshelf from when I was in undergrad! <br> Click for book reviews.</div>
-        </div>
-        
-        <div class="hover-area" style="top: 57%; right: 5%; width: 20vw; height: 16vh;" onclick="handleAreaClick(this)" data-action="music">
-            <div class="tooltip">I got this record player <br>for nine dollars. <br> Click for music reviews.</div>
-        </div>
-        
-        <div class="hover-area" style="top: 17%; left: 7%; width: 23vw; height: 25vh;" onclick="handleAreaClick(this)" data-action="outside">
-            <div class="tooltip">Let's go outside! Click for my serious writing</div>
-        </div>
-        
-        <div class="hover-area" style="top: 25%; left: 31%; width: 15vw; height: 31vh;" onclick="handleAreaClick(this)" data-action="me">
-            <div class="tooltip">Hi! Click to learn more about me</div>
-        </div>
-        <div class="hover-area" style="top: 40%; left: 4%; width: 28vw; height: 45vh;" onclick="handleAreaClick(this)" data-action="bed">
-            <div class="tooltip">My childhood bed. Click for more random material</div>
+        <div class="image-wrapper">
+            <!-- Replace 'your-image.jpg' with your actual image file -->
+            <img src="HomePage.png" alt="Main Image" class="main-image">
+            
+            <!-- Hover areas - adjust position and size for your image -->
+            <div class="hover-area" style="top: 30%; left: 55%; width: 22%; height: 44%;" onclick="handleAreaClick(this)" data-action="book">
+                <div class="tooltip">This is my bookshelf from when I was in undergrad! <br> Click for book reviews.</div>
+            </div>
+            
+            <div class="hover-area" style="top: 57%; right: 5%; width: 20%; height: 20%;" onclick="handleAreaClick(this)" data-action="music">
+                <div class="tooltip">I got this record player <br>for nine dollars. <br> Click for music reviews.</div>
+            </div>
+            
+            <div class="hover-area" style="top: 9%; left: 7%; width: 23%; height: 31%;" onclick="handleAreaClick(this)" data-action="outside">
+                <div class="tooltip">Let's go outside! Click for my serious writing</div>
+            </div>
+            
+            <div class="hover-area" style="top: 20%; left: 31%; width: 15%; height: 38%;" onclick="handleAreaClick(this)" data-action="me">
+                <div class="tooltip">Hi! Click to learn more about me</div>
+            </div>
+            <div class="hover-area" style="top: 40%; left: 3%; width: 28%; height: 45%;" onclick="handleAreaClick(this)" data-action="bed">
+                <div class="tooltip">My childhood bed. Click for more random material</div>
+            </div>
         </div>
     </div>
 
