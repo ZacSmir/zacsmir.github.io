@@ -37,6 +37,24 @@
             display: block;
         }
 
+        .welcome-text {
+            position: absolute;
+            top: 5%;
+            left: 45%;
+            transform: translateX(-50%);
+            /* background: rgba(0, 0, 0, 0.7); */
+            text-shadow: #000;
+            color: rgb(128, 10, 155);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 500;
+            /* backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); */
+        }
+
         .hover-area {
             position: absolute;
             border: 2px solid transparent;
@@ -51,7 +69,9 @@
         }
 
         .tooltip {
-            position: absolute;
+            position: fixed;
+            top: 70%;
+            right: 20%;
             background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 8px 12px;
@@ -60,22 +80,19 @@
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
-            transform: translateY(-10px);
             transition: all 0.3s ease;
             z-index: 1000;
         }
 
         .hover-area:hover .tooltip {
             opacity: 1;
-            transform: translateY(-40px);
         }
 
         .tooltip::after {
             content: '';
-            position: absolute;
+            position: fixed;
             top: 100%;
             left: 50%;
-            transform: translateX(-50%);
             border: 6px solid transparent;
             border-top-color: rgba(0, 0, 0, 0.9);
         }
@@ -84,6 +101,10 @@
 <body>
     <div class="image-container">
         <div class="image-wrapper">
+            <div class="welcome-text">
+                Welcome to my room! <br> Have a click around!
+            </div>
+
             <!-- Replace 'your-image.jpg' with your actual image file -->
             <img src="HomePage.png" alt="Main Image" class="main-image">
             
@@ -93,7 +114,7 @@
             </div>
             
             <div class="hover-area" style="top: 57%; right: 5%; width: 20%; height: 20%;" onclick="handleAreaClick(this)" data-action="music">
-                <div class="tooltip">TESTINGI got this record player <br>for nine dollars. <br> Click for music reviews.</div>
+                <div class="tooltip">I got this record player <br>for nine dollars. <br> Click for music reviews.</div>
             </div>
             
             <div class="hover-area" style="top: 9%; left: 7%; width: 23%; height: 31%;" onclick="handleAreaClick(this)" data-action="outside">
