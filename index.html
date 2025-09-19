@@ -127,7 +127,7 @@
             </div>
             
             <div class="hover-area" style="top: 10%; left: 7%; width: 23%; height: 30%;" onclick="handleAreaClick(this)"
-                data-action="outside"
+                data-action="https://readingthings.substack.com"
                 data-title="Window"
                 data-text="Let's go outside! Click for my serious writing.">
                 <!--  <div class="tooltip">Let's go outside! Click for my serious writing</div> -->
@@ -185,8 +185,12 @@
             if (element.classList.contains('active')) {
                 // Perform the actual action here
                 const action = element.getAttribute('data-action');
+                if(action == "https://readingthings.substack.com"){
+                    window.location.href = action;
+                } else {
                 window.location.href = action + '.html';
                 return;
+                }
             }
             
             // Deactivate any currently active area
