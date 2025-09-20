@@ -75,34 +75,6 @@
             padding-bottom: 4px;
         }
 
-        /*.tooltip {
-            position: fixed;
-            top: 70%;
-            right: 20%;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .hover-area:hover .tooltip {
-            opacity: 1;
-        }
-
-        .tooltip::after {
-            content: '';
-            position: fixed;
-            top: 100%;
-            left: 50%;
-            border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
-        }*/
     </style>
 </head>
 <body>
@@ -150,13 +122,15 @@
 
         <div class="text-display" id="textDisplay">
             <h3>WAILA?</h3>
-            <p>Hover over things to learn more!</p>
+            <p>Welcome to my room! Hover over things to learn more!</p>
         </div>
     </div>
 
     <script>
         let activeArea = null;
         const textDisplay = document.getElementById('textDisplay');
+
+        const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
         // Show text when hovering over areas
         document.querySelectorAll('.hover-area').forEach(area => {
@@ -173,8 +147,8 @@
             area.addEventListener('mouseleave', function() {
                 if (!this.classList.contains('active')) {
                     textDisplay.innerHTML = `
-                        <h3>Welcome!</h3>
-                        <p>Hover over different areas of the room to learn more. Click to explore!</p>
+                        <h3>WAILA?</h3>
+                        <p>Welcome to my room! Hover over things to learn more!</p>
                     `;
                 }
             });
@@ -182,6 +156,18 @@
 
         function handleAreaClick(element) {
             // If this area is already active, treat as actual click
+
+            if (!isMobile) {
+                // Desktop - navigate immediately on first click
+                const action = element.getAttribute('data-action');
+                if(action == "https://readingthings.substack.com"){
+                    window.location.href = action;
+                } else {
+                    window.location.href = action + '.html';
+                }
+                return;
+            }
+
             if (element.classList.contains('active')) {
                 // Perform the actual action here
                 const action = element.getAttribute('data-action');
@@ -219,8 +205,8 @@
                 
                 // Reset to welcome message
                 textDisplay.innerHTML = `
-                    <h3>Welcome!</h3>
-                    <p>Hover over different areas of the room to learn more. Click to explore!</p>
+                    <h3>WAILA?</h3>
+                    <p>Welcome to my room! Hover over things to learn more!</p>
                 `;
             }
         });
@@ -236,71 +222,6 @@
         }, {passive: true});
 
 
-        /* let activeArea = null;
-        const textDisplay = document.getElementById('textDisplay');
-
-        // Show text when hovering over areas
-        document.querySelectorAll('.hover-area').forEach(area => {
-            area.addEventListener('mouseenter', function() {
-                const title = this.getAttribute('data-title');
-                const text = this.getAttribute('data-text');
-                
-                textDisplay.innerHTML = `
-                    <h3>${title}</h3>
-                    <p>${text}</p>
-                `;
-            });
-            
-            area.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('active')) {
-                    textDisplay.innerHTML = `
-                        <h3>Welcome!</h3>
-                        <p>Hover over different areas of the room to learn more. Click to explore!</p>
-                    `;
-                }
-            });
-        });
-
-
-        let activeArea = null;
-
-        function handleAreaClick(element) {
-            // If this area is already active, treat as actual click
-            if (element.classList.contains('active')) {
-                // Perform the actual action here
-                const action = element.getAttribute('data-action');
-                alert(`Clicked on ${action}! You could navigate to ${action}.html`);
-                // window.location.href = action + '.html';
-                return;
-            }
-            
-            // Deactivate any currently active area
-            if (activeArea) {
-                activeArea.classList.remove('active');
-            }
-            
-            // Activate the clicked area
-            element.classList.add('active');
-            activeArea = element;
-        }
-
-        // Deselect when clicking outside any hover area
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.hover-area') && activeArea) {
-                activeArea.classList.remove('active');
-                activeArea = null;
-            }
-        });
-
-        // Prevent clicks on the image from deselecting
-        document.querySelector('.main-image').addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // Touch event handling for better mobile experience
-        document.addEventListener('touchstart', function(e) {
-            // This helps with touch responsiveness
-        }, {passive: true}); */
     </script>
 </body>
 </html>
