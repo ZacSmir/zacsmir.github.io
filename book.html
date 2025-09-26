@@ -25,15 +25,23 @@
         
         h1 {
             color: #333;
-            margin: 0 0 10px 0;
+            font-size: 8rem;
+            margin: 1rem 0 1rem 2rem;
             -webkit-text-stroke: 1px white;
         }
         
         .subheader {
-            color: #666;
-            font-size: 16px;
-            margin: 0;
-            max-width: 600px;
+            color: #000000;
+            font-size: 1.5rem;
+            margin: 0 0 0 3rem;
+            max-width: 100rem;
+        }
+
+        .subheader span {
+            background-color: #ccbea4;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 5px;
         }
         
         .search-container {
@@ -192,7 +200,7 @@
     <div class="header">
         <div class="title-section">
             <h1>Book Reviews</h1>
-            <p class="subheader">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p class="subheader"><span>I read a lot and should better document my thoughts on the books I like - or strongly dislike. Currently placeholders and one old review.</span></p>
         </div>
         <div class="search-container">
             <div class="search-buttons">
@@ -226,9 +234,10 @@
     
     <script>
         const books = [
-    ["reviews/FoucaultPend.html", "Foucault's Pendulum", "Umberto Eco is my GOAT", ["Umberto Eco", "Mystery", "Politics", "Conspiracy", "Paranoia", "Fiction"]],
-    ["reviews/2666.html", "2666", "Bolaño knew ball. R.I.P. to the third leg of history", ["Roberto Bolaño", "Politics", "Mystery", "Postmodern", "Mexican", "Translated", "Fiction"]],
-    ["reviews/TLTL.html", "Too Like the Lightning", "Palmer writes some of the most ambitious science fiction of the 21st century. And some of the best.", ["Ada Palmer", "Science Fiction", "Political Theory", "Fiction", "Worldbuilding", "Mystery"]]
+    ["reviews/FoucaultPend.html", "Foucault's Pendulum", "[No Review Yet] Umberto Eco is my GOAT", ["Umberto Eco", "Mystery", "Politics", "Conspiracy", "Paranoia", "Fiction"]],
+    ["reviews/2666.html", "2666", "[No Review Yet] Bolaño knew ball. R.I.P. to the third leg of history", ["Roberto Bolaño", "Politics", "Mystery", "Postmodern", "Mexican", "Translated", "Fiction"]],
+    ["reviews/TLTL.html", "Too Like the Lightning", "[No Review Yet] Palmer writes some of the most ambitious science fiction of the 21st century. And some of the best.", ["Ada Palmer", "Science Fiction", "Political Theory", "Fiction", "Worldbuilding", "Mystery"]],
+    ["reviews/MinistryfortheFuture.html", "Ministry for the Future", "[Review Written as Teenager] After an intense and powerful first chapter, Kim Stanley Robinson continues with a well intentioned but misguided sprawling novel that forgets about cities but remembers bitcoin.", ["Kim Stanley Robinson", "Science Fiction", "Political Theory", "Fiction", "Climate Fiction"]]
         ];
             // Import book data from external file
         // Create a file called 'book_blurbs.js' with this format:
