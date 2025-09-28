@@ -47,6 +47,13 @@
             height: 12px;
             border-radius: 50%;
             border: 1px solid #999;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .traffic-light:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
         }
 
         .close { background: #ff5f56; }
@@ -119,6 +126,16 @@
             overflow-y: auto;
             position: relative;
             z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            width: 0;
+            min-width: 0;
+            max-width: 0;
+            padding: 0;
+            border-right: none;
+            overflow: hidden;
         }
 
         .sidebar-section {
@@ -416,9 +433,9 @@
     <div class="itunes-window">
         <div class="title-bar">
             <div class="traffic-lights">
-                <div class="traffic-light close"></div>
-                <div class="traffic-light minimize"></div>
-                <div class="traffic-light maximize"></div>
+                <a href="javascript:void(0)" onclick="toggleSidebar()" class="traffic-light close" title="Toggle Sidebar"></a>
+                <a href="javascript:void(0)" onclick="toggleSidebar()" class="traffic-light minimize" title="Minimize"></a>
+                <a href="javascript:void(0)" onclick="toggleSidebar()" class="traffic-light maximize" title="Fullscreen"></a>
             </div>
             <div class="window-title">iTunes</div>
         </div>
@@ -433,7 +450,7 @@
 
         <div class="main-content">
             <div class="sidebar">
-                <div class="sidebar-section">
+                <!-- <div class="sidebar-section">
                     <div class="sidebar-header">Library</div>
                     <div class="sidebar-item selected">
                         <span class="sidebar-icon">🎵</span>
@@ -462,7 +479,7 @@
                 </div>
 
                 <div class="sidebar-section">
-                    <div class="sidebar-header">Playlists</div>
+                    <div class="sidebar-header">Albums</div>
                     <div class="sidebar-item">
                         <span class="sidebar-icon">📋</span>
                         Party Shuffle
@@ -474,6 +491,13 @@
                     <div class="sidebar-item">
                         <span class="sidebar-icon">⭐</span>
                         Top 25 Most Played
+                    </div>
+                </div> -->
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Albums</div>
+                    <div id="albumsList">
+                        <!-- Albums will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -515,6 +539,11 @@
 
     <script src="albums.js"> </script>
     <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
         function getRandomInt(min, max) {
             min = Math.ceil(min);
             max = Math.floor(max);
@@ -606,6 +635,7 @@
                 currentIndex--;
                 selectedTrack = 0;
                 updateCoverflow();
+                updateSidebarSelection();
             }
         }
 
@@ -614,6 +644,7 @@
                 currentIndex++;
                 selectedTrack = 0;
                 updateCoverflow();
+                updateSidebarSelection();
             }
         }
 
@@ -621,6 +652,7 @@
             currentIndex = index;
             selectedTrack = 0;
             updateCoverflow();
+            updateSidebarSelection();
         }
 
         function selectTrack(index) {
@@ -652,8 +684,37 @@
             }
         });
 
+        function populateAlbumsList() {
+            const albumsList = document.getElementById('albumsList');
+            albumsList.innerHTML = '';
+            
+            albums.forEach((album, index) => {
+                const albumItem = document.createElement('div');
+                albumItem.className = `sidebar-item ${index === currentIndex ? 'selected' : ''}`;
+                albumItem.onclick = () => selectAlbum(index);
+                albumItem.innerHTML = `
+                    <span class="sidebar-icon">💿</span>
+                    ${album.title}
+                `;
+                albumsList.appendChild(albumItem);
+            });
+        }
+
+        function updateSidebarSelection() {
+            // Update the selected album in the sidebar
+            const sidebarItems = document.querySelectorAll('#albumsList .sidebar-item');
+            sidebarItems.forEach((item, index) => {
+                if (index === currentIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
         // Initialize
         updateCoverflow();
+        populateAlbumsList();
 
         // Synchronize header and body scrolling
         const trackListBody = document.getElementById('trackListBody');
