@@ -1,0 +1,7 @@
+const books = [
+    ["book_reviews/FoucaultPend.html", "Foucault's Pendulum", "[No Review Yet] Umberto Eco is my GOAT", ["Umberto Eco", "Mystery", "Politics", "Conspiracy", "Paranoia", "Fiction"]],
+    ["book_reviews/2666.html", "2666", "[No Review Yet] Bolaño knew ball. R.I.P. to the third leg of history", ["Roberto Bolaño", "Politics", "Mystery", "Postmodern", "Mexican", "Translated", "Fiction"]],
+    ["book_reviews/TLTL.html", "Too Like the Lightning", "[No Review Yet] Palmer writes some of the most ambitious science fiction of the 21st century. And some of the best.", ["Ada Palmer", "Science Fiction", "Political Theory", "Fiction", "Worldbuilding", "Mystery"]],
+    ["book_reviews/MinistryfortheFuture.html", "Ministry for the Future", "[Review Written as Teenager] After an intense and powerful first chapter, Kim Stanley Robinson continues with a well intentioned but misguided sprawling novel that forgets about cities but remembers bitcoin.", ["Kim Stanley Robinson", "Science Fiction", "Political Theory", "Fiction", "Climate Fiction"]],
+    ["book_reviews/NameOfTheRose.html", "The Name of the Rose", "[No Review Yet] Umberto Eco still my GOAT", ["Umberto Eco", "Mystery", "Fiction", "Historical", "Religion"]]
+        ];

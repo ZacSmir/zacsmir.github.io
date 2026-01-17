@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Reviews</title>
+    <style>
+        body {
+            background-image: url('scriptor.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        
+        .title-section {
+            flex: 1;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 8rem;
+            margin: 1rem 0 1rem 2rem;
+            -webkit-text-stroke: 1px white;
+        }
+        
+        .subheader {
+            color: #000000;
+            background-color: #ccbea4;
+            padding: 10px 12px;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            margin: 0 0 0 3rem;
+            max-width: 100rem;
+        }
+
+        .subheader span {
+            
+            border: none;
+
+        }
+        
+        .search-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .search-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .search-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .clear-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .clear-btn:hover {
+            background-color: #da190b;
+        }
+        
+        .search-box {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 9px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .search-box.hidden {
+            display: none;
+        }
+        
+        #tagInput {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        
+        .active-filters {
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .filter-tag {
+            display: inline-block;
+            background-color: #2196F3;
+            color: white;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        
+        .filter-tag:hover {
+            background-color: #1976D2;
+        }
+        
+        .hidden-row {
+            display: none;
+        }
+        
+        table {
+            width: 95%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #4b23109f;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tbody tr {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        tr:hover {
+            background-color: rgba(245, 245, 245, 0.8);
+        }
+        
+        .book-title {
+            width: 20%;
+            font-weight: bold;
+        }
+        
+        .summary-excerpt {
+            width: 50%;
+        }
+        
+        .tags {
+            width: 20%;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: #e1f5fe;
+            color: #01579b;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+        
+        a {
+            color: #358fd9;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title-section">
+            <h1>Book Reviews</h1>
+            <p class="subheader"><span>I read a lot and should better document my thoughts on the books I like - or strongly dislike. Currently just placeholders and one old review.</span></p>
+        </div>
+        <div class="search-container">
+            <div class="search-buttons">
+                <button id="searchBtn" class="search-btn">Search by Tag</button>
+                <button id="clearBtn" class="clear-btn">×</button>
+            </div>
+            <div id="searchBox" class="search-box hidden">
+                <input type="text" id="tagInput" placeholder="Enter a tag and press Enter">
+            </div>
+            <div id="activeFilters" class="active-filters"></div>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th class="book-title">Title</th>
+                <th class="summary-excerpt">Blurb</th>
+                <th class="tags">Tags</th>
+            </tr>
+        </thead>
+    </thead>
+        <tbody id="bookTableBody">
+            <!-- Book rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <script src="books.js"></script>
+    
+    <script>
+            // Import book data from external file
+        // Create a file called 'book_blurbs.js' with this format:
+        // const book_blurbs = [
+        //     ["reviews/dune.html", "Dune", "Herbert's epic masterpiece combines political intrigue, ecological themes, and mystical elements in a richly detailed universe...", ["Science Fiction", "Epic", "Politics"]],
+        //     ["reviews/1984.html", "1984", "Orwell's dystopian vision remains chillingly relevant, exploring themes of surveillance, truth, and the power of totalitarian control...", ["Dystopian", "Classic", "Political"]],
+        //     ["reviews/pride-prejudice.html", "Pride and Prejudice", "Austen's wit and social commentary shine through this timeless romance that examines class, marriage, and personal growth...", ["Romance", "Classic", "Social Commentary"]]
+        // ];
+        
+        // Example data (replace this with the external file import)
+        
+        // Function to populate the table
+        function populateTable() {
+            const tbody = document.getElementById('bookTableBody');
+            tbody.innerHTML = '';
+            
+            books.forEach(([link, title, blurb, tags]) => {
+                const row = document.createElement('tr');
+                
+                // Title column
+                const titleCell = document.createElement('td');
+                titleCell.className = 'book-title';
+                const titleLink = document.createElement('a');
+                titleLink.href = link;
+                titleLink.textContent = title;
+                titleCell.appendChild(titleLink);
+                
+                // Blurb column
+                const blurbCell = document.createElement('td');
+                blurbCell.className = 'summary-excerpt';
+                blurbCell.textContent = blurb;
+                
+                // Tags column
+                const tagsCell = document.createElement('td');
+                tagsCell.className = 'tags';
+                tags.forEach(tag => {
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'tag';
+                    tagSpan.textContent = tag;
+                    tagsCell.appendChild(tagSpan);
+                });
+                
+                row.appendChild(titleCell);
+                row.appendChild(blurbCell);
+                row.appendChild(tagsCell);
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Populate table when page loads
+        document.addEventListener('DOMContentLoaded', populateTable);
+
+
+
+        let activeFilters = [];
+        
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const searchBox = document.getElementById('searchBox');
+        const tagInput = document.getElementById('tagInput');
+        const activeFiltersDiv = document.getElementById('activeFilters');
+        
+        // Toggle search box visibility
+        searchBtn.addEventListener('click', () => {
+            searchBox.classList.toggle('hidden');
+            if (!searchBox.classList.contains('hidden')) {
+                tagInput.focus();
+            }
+        });
+        
+        // Clear all filters
+        clearBtn.addEventListener('click', () => {
+            activeFilters = [];
+            updateFiltersDisplay();
+            applyFilters();
+        });
+        
+        // Close search box when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!document.querySelector('.search-buttons').contains(e.target) && !searchBox.contains(e.target)) {
+                searchBox.classList.add('hidden');
+            }
+        });
+        
+        // Handle Enter key to add filter
+        tagInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const tag = tagInput.value.trim();
+                if (tag && !activeFilters.includes(tag.toLowerCase())) {
+                    activeFilters.push(tag.toLowerCase());
+                    updateFiltersDisplay();
+                    applyFilters();
+                    tagInput.value = '';
+                }
+            }
+        });
+        
+        // Update the display of active filters
+        function updateFiltersDisplay() {
+            activeFiltersDiv.innerHTML = '';
+            activeFilters.forEach(filter => {
+                const filterElement = document.createElement('span');
+                filterElement.className = 'filter-tag';
+                filterElement.textContent = filter;
+                filterElement.addEventListener('click', () => {
+                    removeFilter(filter);
+                });
+                activeFiltersDiv.appendChild(filterElement);
+            });
+        }
+        
+        // Remove a filter
+        function removeFilter(filter) {
+            activeFilters = activeFilters.filter(f => f !== filter);
+            updateFiltersDisplay();
+            applyFilters();
+        }
+        
+        // Apply filters to table rows
+        function applyFilters() {
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                if (activeFilters.length === 0) {
+                    row.classList.remove('hidden-row');
+                } else {
+                    const tagElements = row.querySelectorAll('.tag');
+                    const rowTags = Array.from(tagElements).map(tag => tag.textContent.toLowerCase());
+                    
+                    // Check if all active filters are present in this row's tags
+                    const hasAllTags = activeFilters.every(filter => 
+                        rowTags.some(rowTag => rowTag.includes(filter))
+                    );
+                    
+                    if (hasAllTags) {
+                        row.classList.remove('hidden-row');
+                    } else {
+                        row.classList.add('hidden-row');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

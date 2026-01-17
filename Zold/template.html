@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Title</title>
+    <style>
+        body {
+            background-color: #FFFFFF;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        hr {
+            margin-bottom: 30px;
+        }
+
+        .header-text {
+            margin: 0 auto 40px auto;
+            max-width: 900px;
+            line-height: 1.6;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .grid-item {
+            text-align: center;
+        }
+
+        .grid-item a {
+            text-decoration: none;
+            color: #0000EE;
+            font-size: 20pt;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .grid-item a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .grid-item a:visited {
+            color: #551A8B;
+        }
+
+        .grid-item img {
+            width: 100px;
+            height: 100px;
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                margin: 15px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .header-text {
+                font-size: 0.95rem;
+                margin-bottom: 30px;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 0 10px;
+            }
+
+            .grid-item a {
+                font-size: 18pt;
+                padding: 15px;
+            }
+
+            hr {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .grid-item a {
+                font-size: 16pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-title">Page Title</div>
+    <hr>
+
+    <div class="header-text">
+        This is the header section where you can write introductory text or description.
+        <br><br>
+        You can include multiple paragraphs or lines as needed.
+    </div>
+
+    <div class="grid-container">
+        <!-- Grid items go here -->
+        <!-- To add a new item, just copy this block: -->
+
+        <div class="grid-item">
+            <a href="link1.html">
+                <img src="image1.png" alt="Item 1">
+                <div>Item Name 1</div>
+            </a>
+        </div>
+
+        <div class="grid-item">
+            <a href="link2.html">
+                <img src="image2.png" alt="Item 2">
+                <div>Item Name 2</div>
+            </a>
+        </div>
+
+        <div class="grid-item">
+            <a href="link3.html">
+                <img src="image3.png" alt="Item 3">
+                <div>Item Name 3</div>
+            </a>
+        </div>
+
+        <div class="grid-item">
+            <a href="link4.html">
+                <img src="image4.png" alt="Item 4">
+                <div>Item Name 4</div>
+            </a>
+        </div>
+
+        <!-- Add more items by copying the grid-item block above -->
+
+    </div>
+
+</body>
+</html>
