@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Homepage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-wrapper {
+            position: relative;      /* for hover-area to be relative to this */
+            display: inline-block;   /* shrink-wrap to the image */
+        }
+
+        .main-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        .hover-area {
+            position: absolute;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hover-area:hover {
+            border-color: #6424c5;
+            background: rgba(200, 165, 222, 0.2);
+            box-shadow: 0 0 20px rgba(58, 48, 70, 0.5);
+        }
+
+        .text-display {
+            position: fixed;
+            bottom: 8%;
+            right: 20%;
+            width: clamp(200px, 25vw, 350px); /* Scales with screen width */
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: clamp(8px, 1.5vw, 16px); /* Scaling padding */
+            border-radius: 8px;
+            font-size: clamp(10px, 1.8vw, 16px); /* Scaling font size */
+            line-height: 1.4;
+            z-index: 1000;
+            border: 2px solid #6424c5;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            opacity: 0.9;
+        }
+
+        .text-display h3 {
+            margin: 0 0 8px 0;
+            color: #c8a5de;
+            font-size: clamp(12px, 2vw, 18px);
+            border-bottom: 1px solid #6424c5;
+            padding-bottom: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <div class="image-wrapper">
+            <!-- Replace 'your-image.jpg' with your actual image file -->
+            <img src="HomePage3.png" alt="Main Image" class="main-image">
+            
+            <!-- Hover areas - adjust position and size for your image -->
+            <div class="hover-area" style="top: 28%; left: 55%; width: 22%; height: 44%;" onclick="handleAreaClick(this)"
+                data-action="../Books/book.html"
+                data-title="Bookshelf"
+                data-text="This is my bookshelf from when I was in undergrad! Click for book reviews.">
+                <!-- <div class="tooltip">This is my bookshelf from when I was in undergrad! <br> Click for book reviews.</div> -->
+            </div>
+
+            <div class="hover-area" style="top: 59%; right: 5%; width: 21%; height: 20%;" onclick="handleAreaClick(this)"
+                data-action="../Music/music.html"
+                data-title="Record Player & Speakers"
+                data-text="I got this record player for nine dollars. Click for music reviews.">
+                <!-- <div class="tooltip">I got this record player <br>for nine dollars. <br> Click for music reviews.</div> -->
+            </div>
+
+            <div class="hover-area" style="top: 10%; left: 7%; width: 23%; height: 30%;" onclick="handleAreaClick(this)"
+                data-action="https://readingthings.substack.com"
+                data-title="Window"
+                data-text="Let's go outside! Click for my serious writing.">
+                <!--  <div class="tooltip">Let's go outside! Click for my serious writing</div> -->
+            </div>
+
+            <div class="hover-area" style="top: 20%; left: 31%; width: 15%; height: 38%;" onclick="handleAreaClick(this)"
+                data-action="../about.html"
+                data-title="Zach"
+                data-text=">Hi! Click to learn more about me">
+                <!--  <div class="tooltip">Hi! Click to learn more about me</div> -->
+
+            </div>
+            <div class="hover-area" style="top: 40%; left: 3%; width: 28%; height: 45%;" onclick="handleAreaClick(this)"
+                data-action="../projects.html"
+                data-title="Bed"
+                data-text="My childhood bed. Click for more random material">
+                <!--  <div class="tooltip">My childhood bed. Click for more random material</div> -->
+            </div>
+        </div>
+
+        <div class="text-display" id="textDisplay">
+            <h3>WAILA?</h3>
+            <p>Welcome to my room! Hover over things to learn more!</p>
+        </div>
+    </div>
+
+    <script>
+        let activeArea = null;
+        const textDisplay = document.getElementById('textDisplay');
+
+        const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Show text when hovering over areas
+        document.querySelectorAll('.hover-area').forEach(area => {
+            area.addEventListener('mouseenter', function() {
+                const title = this.getAttribute('data-title');
+                const text = this.getAttribute('data-text');
+                
+                textDisplay.innerHTML = `
+                    <h3>${title}</h3>
+                    <p>${text}</p>
+                `;
+            });
+            
+            area.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    textDisplay.innerHTML = `
+                        <h3>WAILA?</h3>
+                        <p>Welcome to my room! Hover over things to learn more!</p>
+                    `;
+                }
+            });
+        });
+
+        function handleAreaClick(element) {
+            // If this area is already active, treat as actual click
+
+            if (!isMobile) {
+                // Desktop - navigate immediately on first click
+                const action = element.getAttribute('data-action');
+                window.location.href = action;
+                return;
+            }
+
+            if (element.classList.contains('active')) {
+                // Perform the actual action here
+                const action = element.getAttribute('data-action');
+                window.location.href = action;
+                return;
+            }
+            
+            // Deactivate any currently active area
+            if (activeArea) {
+                activeArea.classList.remove('active');
+            }
+            
+            // Activate the clicked area
+            element.classList.add('active');
+            activeArea = element;
+            
+            // Keep the text displayed for the active area
+            const title = element.getAttribute('data-title');
+            const text = element.getAttribute('data-text');
+            textDisplay.innerHTML = `
+                <h3>${title}</h3>
+                <p>${text}</p>
+            `;
+        }
+
+        // Deselect when clicking outside any hover area
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.hover-area') && activeArea) {
+                activeArea.classList.remove('active');
+                activeArea = null;
+                
+                // Reset to welcome message
+                textDisplay.innerHTML = `
+                    <h3>WAILA?</h3>
+                    <p>Welcome to my room! Hover over things to learn more!</p>
+                `;
+            }
+        });
+
+        // Prevent clicks on the image from deselecting
+        document.querySelector('.main-image').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Touch event handling for better mobile experience
+        document.addEventListener('touchstart', function(e) {
+            // This helps with touch responsiveness
+        }, {passive: true});
+
+
+    </script>
+</body>
+</html>
