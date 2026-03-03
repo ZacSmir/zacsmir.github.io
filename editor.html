@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Site Editor — zacsmir</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap');
+  :root {
+    --bg: #0e0e0f; --surface: #18181b; --surface2: #222226; --border: #2e2e33;
+    --accent: #e8ff47; --accent-dim: #b8cc30; --text: #f0f0f0; --muted: #888;
+    --danger: #ff5555; --success: #47ff8e;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; display: flex; flex-direction: column; }
+  #setup-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; gap: 2rem; }
+  .setup-logo { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--accent); }
+  .setup-logo span { color: var(--muted); font-weight: 400; }
+  .setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 1.2rem; }
+  .setup-card h2 { font-size: 1.1rem; font-weight: 700; }
+  .setup-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; font-family: var(--mono); }
+  .setup-card a { color: var(--accent); }
+  label { display: block; font-size: 0.75rem; color: var(--muted); font-family: var(--mono); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); font-family: var(--mono); font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+  .btn { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 0.85rem 1.5rem; font-family: var(--sans); font-size: 0.95rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.98); background: var(--accent-dim); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-small { padding: 0.5rem 0.9rem; font-size: 0.8rem; width: auto; border-radius: 6px; }
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.2rem; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .topbar-logo { font-size: 1.1rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+  .topbar-repo { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+  .topbar-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 0.75rem 1.2rem; font-size: 0.8rem; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .panel { display: none; flex-direction: column; flex: 1; padding: 1.2rem; gap: 1rem; }
+  .panel.active { display: flex; }
+  .file-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .file-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; cursor: pointer; transition: border-color 0.15s; }
+  .file-item:active { background: var(--surface2); }
+  .file-item.selected { border-color: var(--accent); }
+  .file-name { font-family: var(--mono); font-size: 0.82rem; }
+  .file-type { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); background: var(--surface2); padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
+  .editor-toolbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .editor-filename { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); flex: 1; min-width: 120px; }
+  textarea#code-editor { width: 100%; flex: 1; min-height: 50vh; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; color: var(--text); font-family: var(--mono); font-size: 0.8rem; line-height: 1.7; resize: vertical; outline: none; tab-size: 2; }
+  textarea#code-editor:focus { border-color: var(--accent); }
+  .commit-row { display: flex; flex-direction: column; gap: 0.6rem; }
+  .ai-chat { display: flex; flex-direction: column; gap: 0.8rem; flex: 1; }
+  .ai-context-info { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+  .ai-context-info span { color: var(--accent); }
+  .messages { flex: 1; min-height: 30vh; max-height: 45vh; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; padding: 0.5rem 0; }
+  .message { border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.83rem; line-height: 1.6; max-width: 92%; }
+  .message.user { background: var(--accent); color: #000; align-self: flex-end; font-weight: 600; }
+  .message.ai { background: var(--surface); border: 1px solid var(--border); color: var(--text); align-self: flex-start; font-family: var(--mono); white-space: pre-wrap; }
+  .message.ai.loading { color: var(--muted); font-style: italic; }
+  .ai-input-row { display: flex; gap: 0.5rem; }
+  .ai-input-row input { flex: 1; }
+  .ai-input-row .btn { width: auto; padding: 0.75rem 1.2rem; font-size: 0.85rem; }
+  .apply-btn { margin-top: 0.6rem; display: block; font-size: 0.75rem; background: var(--surface2); color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer; font-family: var(--mono); }
+  .new-file-form { display: flex; flex-direction: column; gap: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; }
+  #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.8rem; padding: 0.7rem 1.4rem; border-radius: 100px; z-index: 999; transition: transform 0.3s ease; white-space: nowrap; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--success); color: var(--success); }
+  #toast.error { border-color: var(--danger); color: var(--danger); }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: var(--mono); margin-bottom: 0.2rem; }
+</style>
+</head>
+<body>
+
+<div id="setup-screen">
+  <div class="setup-logo">site<span>/</span>editor</div>
+  <div class="setup-card">
+    <h2>Connect your repo</h2>
+    <p>You need a GitHub Personal Access Token with <strong>repo</strong> scope.<br><br>
+    Get one at: <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br><br>
+    Select <strong>Classic token</strong> → check <strong>repo</strong> → Generate.</p>
+    <div><label>GitHub Token</label><input type="password" id="setup-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" /></div>
+    <div><label>Repository (user/repo)</label><input type="text" id="setup-repo" value="zacsmir/zacsmir.github.io" /></div>
+    <div><label>Branch</label><input type="text" id="setup-branch" value="main" /></div>
+    <div><label>Anthropic API Key (for AI editing — optional)</label><input type="password" id="setup-anthropic" placeholder="sk-ant-xxxx" autocomplete="off" /></div>
+    <button class="btn" onclick="startApp()">Connect →</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo">site/editor</div>
+      <div class="topbar-repo" id="topbar-repo-label"></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-small" onclick="loadFiles()">↻</button>
+      <button class="btn btn-ghost btn-small" onclick="logout()">⏏</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('files')">Files</div>
+    <div class="tab" onclick="switchTab('editor')">Editor</div>
+    <div class="tab" onclick="switchTab('ai')">AI Edit</div>
+    <div class="tab" onclick="switchTab('new')">+ New</div>
+  </div>
+
+  <div class="panel active" id="panel-files">
+    <div class="section-title">Repository files</div>
+    <div id="file-list" class="file-list"><div style="color:var(--muted);font-family:var(--mono);font-size:0.8rem;">Loading...</div></div>
+  </div>
+
+  <div class="panel" id="panel-editor">
+    <div class="editor-toolbar">
+      <div class="editor-filename" id="editor-filename">No file open</div>
+      <button class="btn btn-ghost btn-small" onclick="switchTab('files')">Browse</button>
+    </div>
+    <textarea id="code-editor" spellcheck="false" placeholder="Select a file from the Files tab..."></textarea>
+    <div class="commit-row">
+      <input type="text" id="commit-msg" placeholder="Commit message" />
+      <button class="btn" onclick="commitFile()">Push to GitHub</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-ai">
+    <div class="ai-chat">
+      <div class="ai-context-info" id="ai-context-label">No file loaded. Open a file in the Editor tab first.</div>
+      <div class="messages" id="messages"></div>
+      <div class="ai-input-row">
+        <input type="text" id="ai-input" placeholder="e.g. 'change the hero heading to...'" onkeydown="if(event.key==='Enter')sendAI()" />
+        <button class="btn" onclick="sendAI()">Ask</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-new">
+    <div class="section-title">Create a new file</div>
+    <div class="new-file-form">
+      <div><label>File path (e.g. about.html)</label><input type="text" id="new-filename" placeholder="about.html" /></div>
+      <div><label>Template</label>
+        <select id="new-template">
+          <option value="blank">Blank</option>
+          <option value="html">Basic HTML page</option>
+          <option value="post">Blog post</option>
+        </select>
+      </div>
+      <button class="btn" onclick="createNewFile()">Create & Open in Editor</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let TOKEN='', REPO='', BRANCH='main', ANTHROPIC_KEY='';
+let currentFile=null;
+
+const TEMPLATES={
+  blank:'',
+  html:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>New Page</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>New Page</h1>\n</body>\n</html>`,
+  post:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Post Title</title>\n  <link rel="stylesheet" href="/style.css">\n</head>\n<body>\n  <article>\n    <h1>Post Title</h1>\n    <time>March 2026</time>\n    <p>Your content here.</p>\n  </article>\n</body>\n</html>`
+};
+
+function startApp(){
+  TOKEN=document.getElementById('setup-token').value.trim();
+  REPO=document.getElementById('setup-repo').value.trim();
+  BRANCH=document.getElementById('setup-branch').value.trim()||'main';
+  ANTHROPIC_KEY=document.getElementById('setup-anthropic').value.trim();
+  if(!TOKEN||!REPO){toast('Enter token and repo','error');return;}
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('topbar-repo-label').textContent=REPO+' @ '+BRANCH;
+  loadFiles();
+}
+
+function logout(){
+  TOKEN=REPO=BRANCH=ANTHROPIC_KEY=''; currentFile=null;
+  document.getElementById('setup-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup-token').value='';
+  document.getElementById('setup-anthropic').value='';
+}
+
+async function ghFetch(path,opts={}){
+  const res=await fetch(`https://api.github.com/repos/${REPO}/${path}`,{
+    ...opts,
+    headers:{'Authorization':`token ${TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json',...(opts.headers||{})}
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.message||`GitHub ${res.status}`);}
+  return res.json();
+}
+
+async function loadFiles(){
+  const list=document.getElementById('file-list');
+  list.innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:0.8rem;"><span class="spinner"></span>Loading...</div>';
+  try{
+    const tree=await ghFetch(`git/trees/${BRANCH}?recursive=1`);
+    const files=tree.tree.filter(f=>f.type==='blob'&&/\.(html|css|js|md|txt|json|yml|xml)$/.test(f.path));
+    if(!files.length){list.innerHTML='<div style="color:var(--muted);font-size:0.8rem;font-family:var(--mono);">No editable files found.</div>';return;}
+    list.innerHTML='';
+    files.forEach(f=>{
+      const ext=f.path.split('.').pop().toUpperCase();
+      const el=document.createElement('div');
+      el.className='file-item';
+      el.innerHTML=`<span class="file-name">${f.path}</span><span class="file-type">${ext}</span>`;
+      el.onclick=()=>openFile(f.path);
+      list.appendChild(el);
+    });
+  }catch(e){list.innerHTML=`<div style="color:var(--danger);font-family:var(--mono);font-size:0.8rem;">Error: ${e.message}</div>`;}
+}
+
+async function openFile(path){
+  toast('Loading '+path+'…');
+  try{
+    const data=await ghFetch(`contents/${encodeURIComponent(path)}?ref=${BRANCH}`);
+    const content=decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+    currentFile={path,sha:data.sha,content};
+    document.getElementById('code-editor').value=content;
+    document.getElementById('editor-filename').textContent=path;
+    document.getElementById('commit-msg').value=`update ${path}`;
+    updateAIContext();
+    switchTab('editor');
+    toast(path+' loaded','success');
+    document.querySelectorAll('.file-item').forEach(el=>el.classList.toggle('selected',el.querySelector('.file-name').textContent===path));
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function commitFile(){
+  if(!currentFile){toast('No file open','error');return;}
+  const content=document.getElementById('code-editor').value;
+  const msg=document.getElementById('commit-msg').value||`update ${currentFile.path}`;
+  toast('Pushing…');
+  try{
+    const encoded=btoa(unescape(encodeURIComponent(content)));
+    const body={message:msg,content:encoded,branch:BRANCH};
+    if(currentFile.sha)body.sha=currentFile.sha;
+    const res=await ghFetch(`contents/${encodeURIComponent(currentFile.path)}`,{method:'PUT',body:JSON.stringify(body)});
+    currentFile.sha=res.content.sha;
+    currentFile.content=content;
+    toast('Pushed! ✓','success');
+  }catch(e){toast('Push failed: '+e.message,'error');}
+}
+
+async function createNewFile(){
+  const path=document.getElementById('new-filename').value.trim();
+  if(!path){toast('Enter a file path','error');return;}
+  const content=TEMPLATES[document.getElementById('new-template').value]||'';
+  currentFile={path,sha:null,content};
+  document.getElementById('code-editor').value=content;
+  document.getElementById('editor-filename').textContent=path+' (new)';
+  document.getElementById('commit-msg').value=`add ${path}`;
+  updateAIContext();
+  switchTab('editor');
+  toast('Ready — push when done','success');
+}
+
+function updateAIContext(){
+  const label=document.getElementById('ai-context-label');
+  label.innerHTML=currentFile?`Editing: <span>${currentFile.path}</span> — describe what you want changed`:'No file loaded. Open a file in the Editor tab first.';
+}
+
+async function sendAI(){
+  if(!ANTHROPIC_KEY){toast('No Anthropic key in setup','error');return;}
+  if(!currentFile){toast('Open a file first','error');return;}
+  const input=document.getElementById('ai-input');
+  const userMsg=input.value.trim();
+  if(!userMsg)return;
+  const currentCode=document.getElementById('code-editor').value;
+  input.value='';
+  appendMsg('user',userMsg);
+  const loadEl=appendMsg('ai','⏳ Thinking…',true);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:4096,
+        system:`You are a web developer assistant editing a GitHub Pages HTML/CSS site. The user describes changes. Respond with ONLY the complete updated file — no markdown fences, no explanation. Current file: ${currentFile.path}`,
+        messages:[{role:'user',content:`Current content of ${currentFile.path}:\n\n${currentCode}\n\n---\nInstruction: ${userMsg}\n\nRespond with ONLY the complete updated file.`}]
+      })
+    });
+    const data=await res.json();
+    const newCode=data.content?.[0]?.text||'';
+    loadEl.remove();
+    const msgEl=document.createElement('div');
+    msgEl.className='message ai';
+    msgEl.textContent=`✓ Done — ${newCode.split('\n').length} lines`;
+    const applyBtn=document.createElement('button');
+    applyBtn.className='apply-btn';
+    applyBtn.textContent='⬆ Apply to editor';
+    applyBtn.onclick=()=>{
+      document.getElementById('code-editor').value=newCode;
+      toast('Applied! Review and push.','success');
+      applyBtn.textContent='✓ Applied'; applyBtn.disabled=true;
+    };
+    msgEl.appendChild(applyBtn);
+    document.getElementById('messages').appendChild(msgEl);
+    scrollMsgs();
+  }catch(e){loadEl.textContent='Error: '+e.message;loadEl.classList.remove('loading');}
+}
+
+function appendMsg(role,text,loading=false){
+  const el=document.createElement('div');
+  el.className=`message ${role}${loading?' loading':''}`;
+  el.textContent=text;
+  document.getElementById('messages').appendChild(el);
+  scrollMsgs();
+  return el;
+}
+
+function scrollMsgs(){const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;}
+
+function switchTab(name){
+  const names=['files','editor','ai','new'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
+  if(name==='ai')updateAIContext();
+}
+
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.className='',2500);
+}
+</script>
+</body>
+</html>
