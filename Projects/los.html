@@ -7,13 +7,23 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
-        body { display: flex; flex-direction: column; padding: 10px; }
+        body { display: flex; flex-direction: column; padding: 10px; position: relative; }
         h1 { text-align: center; }
         p { text-align: center; margin-bottom: 10px; }
         iframe { flex: 1; width: 100%; border: none; }
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #0000EE;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <a href="projects.html" class="back-link">Return to Projects</a>
     <h1>Los</h1>
     <p>This is a short film about Los Altos, CA in the style of Los by James Benning. Composed of seven two and a half minute long shots taken on January 24th 2025. Shot by Tyler Poon and Zach Smirin. Edited by Zach Smirin.</p>
     <iframe src="https://drive.google.com/file/d/11eAag6HjoN6nPZMaTMYUcHTAB3FqaYj_/preview" allow="autoplay"></iframe>
