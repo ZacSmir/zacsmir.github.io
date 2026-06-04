@@ -55,8 +55,8 @@ def update_projects_html(slug, title, image_filename):
 
 """
 
-    # Insert before the placeholder block (item 2 placeholder)
-    marker = '<div class="grid-item">\n            <a href="link2.html">'
+    # Insert before the closing comment
+    marker = '<!-- Add more items by copying the grid-item block above -->'
     updated = insert_before(content, marker, new_item.rstrip("\n"))
 
     with open(PROJECTS_HTML, "w") as f:
@@ -80,8 +80,8 @@ def update_index_html(slug, title, blurb, image_filename):
 
 """
 
-    # Insert before the placeholder box (post3.html)
-    marker = '<a href="post3.html" class="infobox">'
+    # Insert before the closing comment
+    marker = '<!-- Add more infoboxes by copying the structure above -->'
     updated = insert_before(content, marker, new_infobox.rstrip("\n"))
 
     with open(INDEX_HTML, "w") as f:
