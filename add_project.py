@@ -55,7 +55,10 @@ def update_projects_html(slug, title, image_filename):
 
 """
 
-    # Insert before the closing comment
+    if f'href="{slug}.html"' in content:
+        print(f"  projects.html already contains {slug}, skipping")
+        return
+
     marker = '<!-- Add more items by copying the grid-item block above -->'
     updated = insert_before(content, marker, new_item.rstrip("\n"))
 
@@ -80,7 +83,10 @@ def update_index_html(slug, title, blurb, image_filename):
 
 """
 
-    # Insert before the closing comment
+    if f'href="Projects/{slug}.html"' in content:
+        print(f"  index.html already contains {slug}, skipping")
+        return
+
     marker = '<!-- Add more infoboxes by copying the structure above -->'
     updated = insert_before(content, marker, new_infobox.rstrip("\n"))
 
