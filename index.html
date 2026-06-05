@@ -212,15 +212,6 @@
     <main class="container">
         <div class="infobox-grid">
 
-            <!-- Latest Substack Post (populated dynamically) -->
-            <a href="#" class="infobox" id="substack-post" style="display:none">
-                <img src="placeholder.png" alt="Latest Post" class="infobox-image">
-                <div class="infobox-content">
-                    <h2 class="infobox-title">Loading latest post...</h2>
-                    <p class="infobox-blurb">Fetching from Substack...</p>
-                </div>
-            </a>
-
             <!-- Friends Page -->
             <a href="About Me/me_pages/friends.html" class="infobox">
                 <img src="About Me/me_images/Rolodex.avif" alt="Friends" class="infobox-image">
@@ -260,55 +251,5 @@
         </div>
     </main>
 
-    <script>
-        // Fetch latest Substack post from RSS feed
-        async function fetchLatestSubstackPost() {
-            try {
-                // Use CORS proxy to fetch the RSS feed
-                const RSS_URL = 'https://corsproxy.io/?https://readingthings.substack.com/feed';
-                const response = await fetch(RSS_URL);
-                const text = await response.text();
-
-                // Parse XML
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, 'text/xml');
-
-                // Get the first item (latest post)
-                const item = xml.querySelector('item');
-                if (!item) {
-                    console.error('No items found in RSS feed');
-                    return;
-                }
-
-                // Extract data
-                const title = item.querySelector('title')?.textContent || 'Untitled Post';
-                const link = item.querySelector('link')?.textContent || '#';
-                const description = item.querySelector('description')?.textContent || '';
-
-                // Extract image from content if available
-                const content = item.querySelector('content\\:encoded, encoded')?.textContent || description;
-                const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-                const imageUrl = imgMatch ? imgMatch[1] : 'placeholder.png';
-
-                // Clean up description (remove HTML tags and limit length)
-                const cleanDescription = description.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
-
-                // Update and show the infobox
-                const substackBox = document.getElementById('substack-post');
-                substackBox.href = link;
-                substackBox.querySelector('.infobox-image').src = imageUrl;
-                substackBox.querySelector('.infobox-title').textContent = title;
-                substackBox.querySelector('.infobox-blurb').textContent = cleanDescription;
-                substackBox.style.display = 'block';
-
-            } catch (error) {
-                console.error('Error fetching Substack RSS:', error);
-                document.getElementById('substack-post').style.display = 'none';
-            }
-        }
-
-        // Load the latest post when page loads
-        fetchLatestSubstackPost();
-    </script>
 </body>
 </html>
