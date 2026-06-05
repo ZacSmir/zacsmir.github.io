@@ -8,9 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
         body { display: flex; flex-direction: column; padding: 10px; position: relative; }
-        h1 { text-align: center; }
+        h1 { text-align: center; margin-bottom: 10px; }
         p { text-align: center; margin-bottom: 10px; }
-        iframe { flex: 1; width: 100%; border: none; }
         .back-link {
             position: absolute;
             top: 10px;
@@ -20,12 +19,47 @@
             font-size: 0.9rem;
         }
         .back-link:hover { text-decoration: underline; }
+        .pdf-container {
+            flex: 1;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border: none;
+        }
+        .pdf-fallback { display: none; }
+
+        @media (max-width: 768px) {
+            body { position: static; }
+            .back-link {
+                position: static;
+                display: block;
+                text-align: right;
+                margin-bottom: 10px;
+            }
+            .pdf-fallback {
+                display: block;
+                text-align: center;
+                margin-bottom: 10px;
+                font-size: 0.95rem;
+            }
+            .pdf-fallback a { color: #0000EE; }
+        }
     </style>
 </head>
 <body>
     <a href="projects.html" class="back-link">Return to Projects</a>
     <h1>Supposing the Physical Sciences to be Non-Existent...</h1>
     <p>My undergraduate thesis on the relationship, or lack thereof, between 18th and 19th century atheists and science.</p>
-    <iframe src="Project_files/Zachary%20Smirin%20Thesis%20Blog.pdf"></iframe>
+    <p class="pdf-fallback">
+        <a href="Project_files/Zachary%20Smirin%20Thesis%20Blog.pdf" target="_blank">Tap here to open the full PDF</a>
+    </p>
+    <div class="pdf-container">
+        <iframe src="Project_files/Zachary%20Smirin%20Thesis%20Blog.pdf"></iframe>
+    </div>
 </body>
 </html>

@@ -213,7 +213,7 @@
         <div class="infobox-grid">
 
             <!-- Latest Substack Post (populated dynamically) -->
-            <a href="#" class="infobox" id="substack-post">
+            <a href="#" class="infobox" id="substack-post" style="display:none">
                 <img src="placeholder.png" alt="Latest Post" class="infobox-image">
                 <div class="infobox-content">
                     <h2 class="infobox-title">Loading latest post...</h2>
@@ -293,19 +293,17 @@
                 // Clean up description (remove HTML tags and limit length)
                 const cleanDescription = description.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
 
-                // Update the infobox
+                // Update and show the infobox
                 const substackBox = document.getElementById('substack-post');
                 substackBox.href = link;
                 substackBox.querySelector('.infobox-image').src = imageUrl;
                 substackBox.querySelector('.infobox-title').textContent = title;
                 substackBox.querySelector('.infobox-blurb').textContent = cleanDescription;
+                substackBox.style.display = 'block';
 
             } catch (error) {
                 console.error('Error fetching Substack RSS:', error);
-                const substackBox = document.getElementById('substack-post');
-                substackBox.querySelector('.infobox-title').textContent = 'Latest from Substack';
-                substackBox.querySelector('.infobox-blurb').textContent = 'Visit my Substack to read the latest posts.';
-                substackBox.href = 'https://readingthings.substack.com/';
+                document.getElementById('substack-post').style.display = 'none';
             }
         }
 
