@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subway System Comparison</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="../../index.html">Home</a>
+    <a href="../projects.html">Back</a>
+  </nav>
+  <header class="page-header">
+    <h1>Subway System Comparison</h1>
+    <div class="pickers">
+      <label>System A
+        <select id="pick-a"></select>
+      </label>
+      <label>System B
+        <select id="pick-b"></select>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Overlay <span class="hint">both systems recentered on their own core, at true relative scale</span></h2>
+      <div id="overlay-legend" class="legend"></div>
+      <div id="overlay" class="overlay-wrap"></div>
+    </section>
+
+    <section class="panel">
+      <h2>System detail</h2>
+      <div id="detail" class="detail-grid"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Segment length comparison</h2>
+      <div id="compare-chart" class="compare-wrap"></div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    Segment lengths are real track distance (projected onto each system's own line geometry), deduplicated to one row per physical adjacent-station pair.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
