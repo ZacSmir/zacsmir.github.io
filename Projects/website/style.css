@@ -73,9 +73,7 @@ body {
   display: flex; gap: 1rem;
   padding: 0.75rem 1.5rem 0;
 }
-.site-nav a {
-  color: #0000EE; text-decoration: none; font-size: 0.9rem;
-}
+.site-nav a { color: #0000EE; text-decoration: none; font-size: 0.9rem; }
 .site-nav a:visited { color: #551A8B; }
 .site-nav a:hover { text-decoration: underline; }
 
@@ -84,6 +82,9 @@ body {
   gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
 }
 .page-header h1 { font-size: 1.25rem; margin: 0; }
+.title-row { display: flex; align-items: baseline; gap: 1rem; }
+.sources-link { font-size: 0.85rem; color: var(--text-secondary); text-decoration: none; }
+.sources-link:hover { text-decoration: underline; color: var(--text-primary); }
 .pickers { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 .pickers label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; color: var(--text-secondary); }
 .pickers select {
@@ -125,6 +126,9 @@ main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
 .example-tile .names { font-size: 0.68rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 svg text { fill: var(--text-secondary); font-size: 11px; }
+/* Keeps line thickness constant in screen pixels as the zoom-layer's transform scales --
+   vector-effect isn't inherited, so this has to target the paths directly, not their <g>. */
+.zoom-layer path { vector-effect: non-scaling-stroke; }
 .tooltip {
   position: absolute; pointer-events: none; background: var(--surface-2); border: 1px solid var(--border);
   border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--text-primary);

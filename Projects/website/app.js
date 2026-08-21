@@ -7,6 +7,9 @@ const STAT_LABEL = { min: "Shortest", median: "Median", mean: "Mean", max: "Long
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const seriesColor = (n) => cssVar(`--series-${n}`);
 
+const KM_TO_MI = 0.621371;
+const fmtKm = (km, decimals = 2) => `${km.toFixed(decimals)} km / ${(km * KM_TO_MI).toFixed(decimals)} mi`;
+
 function tooltip() {
   let el = document.querySelector(".tooltip");
   if (!el) {
@@ -51,6 +54,30 @@ async function loadSystem(id) {
   return systemCache.get(id);
 }
 
+// Wheel + click-drag on desktop; on touch, only 2+-finger gestures zoom/pan -- a single-finger
+// touch is left alone so it still scrolls the page instead of getting captured by the map
+// (the exact class of bug fixed earlier for plain page scroll, now relevant again for zoom).
+// touch-action: pan-y tells the browser itself to keep handling one-finger vertical swipes
+// natively, so JS never even sees them as pan attempts.
+// `onZoom(k)` is an optional extra per-tick callback for anything that also needs to stay a
+// constant screen size but isn't a stroke -- e.g. circle radius, which `vector-effect:
+// non-scaling-stroke` (used for line width, see style.css) doesn't cover.
+function attachZoom(svg, g, { scaleExtent = [1, 8], onZoom } = {}) {
+  const zoom = d3.zoom()
+    .scaleExtent(scaleExtent)
+    .filter((event) => {
+      if (event.type === "wheel") return true;
+      if (event.touches) return event.touches.length > 1;
+      return !event.button; // left-click/primary-touch drag on desktop
+    })
+    .on("zoom", (event) => {
+      g.attr("transform", event.transform);
+      if (onZoom) onZoom(event.transform.k);
+    });
+  svg.style("touch-action", "pan-y").style("cursor", "grab").call(zoom);
+  return zoom;
+}
+
 function centroidOf(stops) {
   return [d3.mean(stops, (s) => s.lon), d3.mean(stops, (s) => s.lat)];
 }
@@ -88,14 +115,16 @@ function renderOverlay(sysA, sysB) {
   const pxPerKm = d3.min(pxPerKmCandidates);
   const scaleParam = pxPerKm * EARTH_KM;
 
+  const zoomLayer = svg.append("g").attr("class", "zoom-layer");
   systems.forEach(({ sys, color }) => {
     const [clon, clat] = centroidOf(sys.stops);
     const projection = d3.geoAzimuthalEquidistant().rotate([-clon, -clat]).scale(scaleParam).translate(center);
     const path = d3.geoPath(projection);
-    svg.append("g").attr("fill", "none").attr("stroke", color)
+    zoomLayer.append("g").attr("fill", "none").attr("stroke", color)
       .attr("stroke-width", 2).attr("stroke-linecap", "round").attr("stroke-linejoin", "round")
       .selectAll("path").data(sys.segments).join("path").attr("d", (d) => path(asLineFeature(d.coords)));
   });
+  attachZoom(svg, zoomLayer);
 
   const legend = d3.select("#overlay-legend");
   legend.selectAll("*").remove();
@@ -140,7 +169,9 @@ function renderSystemMap(container, sys) {
   const keys = [...new Set(sys.routes.map((r) => lineKey(r.name)))];
   const color = lineColorScale(keys);
 
-  svg.append("g").attr("fill", "none").attr("stroke-width", 2)
+  const zoomLayer = svg.append("g").attr("class", "zoom-layer");
+
+  zoomLayer.append("g").attr("fill", "none").attr("stroke-width", 2)
     .attr("stroke-linecap", "round").attr("stroke-linejoin", "round")
     .selectAll("path").data(sys.routes).join("path")
     .attr("stroke", (d) => color(lineKey(d.name)))
@@ -151,14 +182,23 @@ function renderSystemMap(container, sys) {
     .map((d) => ({ d, p: projection([d.lon, d.lat]) }))
     .filter(({ p }) => p && Number.isFinite(p[0]) && Number.isFinite(p[1]));
 
-  svg.append("g").attr("fill", cssVar("--text-primary")).attr("fill-opacity", 0.85)
+  // Dots mostly grow with the zoom transform like the rest of the map, but damped: visual size
+  // is baseR * k^(2/3) rather than the natural baseR * k, so at max zoom (k=8, per attachZoom's
+  // default scaleExtent) they land at exactly half the size pure linear scaling would give them
+  // (8^(2/3) = 4, half of 8), with the gap opening up gradually rather than all at once. Since
+  // the transform itself already multiplies r by k, the attribute has to be set to baseR / k^(1/3)
+  // to land on that target visual size.
+  const STOP_R = 1.4;
+  const stopDots = zoomLayer.append("g").attr("fill", cssVar("--text-primary")).attr("fill-opacity", 0.85)
     .selectAll("circle").data(projectedStops).join("circle")
     .attr("cx", ({ p }) => p[0])
     .attr("cy", ({ p }) => p[1])
-    .attr("r", 1.4)
+    .attr("r", STOP_R)
     .on("mouseenter", (event, { d }) => showTooltip(`<strong>${d.name}</strong>`, event))
     .on("mousemove", (event) => showTooltip(tooltip().html(), event))
     .on("mouseleave", hideTooltip);
+
+  attachZoom(svg, zoomLayer, { onZoom: (k) => stopDots.attr("r", STOP_R / Math.cbrt(k)) });
 }
 
 // ---------- Example (min/median/mean/max) segment shapes ----------
@@ -204,7 +244,7 @@ function renderExamples(container, sys) {
       .attr("stroke-linecap", "round").attr("stroke-linejoin", "round");
 
     tile.append("div").attr("class", "cap").text(STAT_LABEL[stat]);
-    tile.append("div").attr("class", "len").text(`${ex.dist_km.toFixed(2)} km`);
+    tile.append("div").attr("class", "len").text(fmtKm(ex.dist_km));
     tile.append("div").attr("class", "names").attr("title", `${ex.s_name} → ${ex.e_name}`)
       .text(`${ex.s_name} → ${ex.e_name}`);
   });
@@ -217,9 +257,9 @@ function renderStats(container, sys) {
   const s = sys.stats;
   const tiles = [
     ["Segments", s.num_segments], ["Stations", s.num_stations], ["Lines", s.num_lines],
-    ["Track length", `${s.total_track_km.toLocaleString()} km / ${s.total_track_mi.toLocaleString()} mi`],
-    ["Shortest segment", `${s.min_km.toFixed(2)} km`], ["Median segment", `${s.median_km.toFixed(2)} km`],
-    ["Mean segment", `${s.mean_km.toFixed(2)} km`], ["Longest segment", `${s.max_km.toFixed(2)} km`],
+    ["Track length", fmtKm(s.total_track_km, 1)],
+    ["Shortest segment", fmtKm(s.min_km)], ["Median segment", fmtKm(s.median_km)],
+    ["Mean segment", fmtKm(s.mean_km)], ["Longest segment", fmtKm(s.max_km)],
   ];
   tiles.forEach(([label, value]) => {
     const t = container.append("div").attr("class", "stat-tile");
@@ -264,7 +304,7 @@ function renderCompareChart(sysA, sysB) {
       .attr("y", (d) => y(d[key])).attr("height", (d) => (h - margin.bottom) - y(d[key]))
       .attr("rx", 3).attr("fill", seriesColor(i + 1))
       .on("mouseenter", function (event, d) {
-        showTooltip(`<strong>${sysName}</strong><br>${STAT_LABEL[d.stat]}: ${d[key].toFixed(3)} km`, event);
+        showTooltip(`<strong>${sysName}</strong><br>${STAT_LABEL[d.stat]}: ${fmtKm(d[key], 3)}`, event);
       })
       .on("mousemove", (event) => showTooltip(tooltip().html(), event))
       .on("mouseleave", hideTooltip);
@@ -310,12 +350,21 @@ async function init() {
     selA.add(new Option(sys.name, sys.id));
     selB.add(new Option(sys.name, sys.id));
   });
-  selA.value = manifest[0].id;
-  selB.value = manifest[1] ? manifest[1].id : manifest[0].id;
+  const hasId = (id) => manifest.some((sys) => sys.id === id);
+  selA.value = hasId("shenzhen") ? "shenzhen" : manifest[0].id;
+  selB.value = hasId("nyc") ? "nyc" : (manifest[1] ? manifest[1].id : manifest[0].id);
   selA.addEventListener("change", render);
   selB.addEventListener("change", render);
-  let resizeTimer;
+
+  // Mobile browsers fire `resize` when the address bar shows/hides mid-scroll -- only the
+  // viewport HEIGHT changes then, but every render() here is driven by container WIDTH, so
+  // re-rendering on those events does nothing useful and the layout thrashing fights the
+  // scroll gesture itself (why scrolling could intermittently stop working on mobile).
+  // Only re-render on a genuine width change.
+  let resizeTimer, lastWidth = window.innerWidth;
   window.addEventListener("resize", () => {
+    if (window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(render, 150);
   });

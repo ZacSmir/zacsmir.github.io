@@ -1,0 +1,46 @@
+[X] Beijing
+[ ] Changchun
+[ ] Changsha
+[ ] Changzhou
+[X] Chengdu
+[X] Chongqing
+[ ] Chuzhou
+[ ] Dalian
+[ ] Dongguan
+[ ] Foshan
+[ ] Fuzhou
+[X] Guangzhou
+[ ] Guiyang
+[ ] Hangzhou
+[ ] Harbin
+[ ] Hefei
+[ ] Hohhot
+[X] Hong Kong
+[ ] Jinan
+[ ] Kunming
+[ ] Lanzhou
+[ ] Luoyang
+[ ] Nanchang
+[ ] Nanning
+[ ] Nantong
+[ ] Qingdao
+[X] Shanghai
+[ ] Shaoxing
+[ ] Shenyang
+[X] Shenzhen
+[ ] Shijiazhuang
+[ ] Suzhou
+[ ] Taiwan
+[ ] Taiyuan
+[ ] Tianjin
+[ ] Wenzhou
+[ ] Wuhan
+[ ] Wuhu
+[ ] Wuxi
+[ ] Xiamen
+[ ] Xuzhou
+[ ] Zhengzhou
+[ ] nanking
+[ ] ningbo
+[ ] sian
+[ ] urumchi

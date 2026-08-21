@@ -285,8 +285,12 @@
                 const link = item.querySelector('link')?.textContent || '#';
                 const description = item.querySelector('description')?.textContent || '';
                 const content = item.querySelector('content\\:encoded, encoded')?.textContent || description;
+                // Substack's RSS gives each post's cover image via <enclosure url="...">, not
+                // necessarily as an inline <img> in the body -- text-only posts (like this one)
+                // have no inline images at all, so the enclosure is the reliable source; only
+                // fall back to scraping the body if a feed item is missing one.
                 const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-                const imageUrl = imgMatch ? imgMatch[1] : null;
+                const imageUrl = item.querySelector('enclosure')?.getAttribute('url') || (imgMatch ? imgMatch[1] : null);
                 const cleanDescription = description.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
 
                 substackBox.href = link;
