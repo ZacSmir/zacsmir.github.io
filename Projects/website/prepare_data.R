@@ -52,7 +52,7 @@ canonical_line_id <- function(route_en) {
 
 # Optional pretty display names for GTFS-derived cities; falls back to a title-cased id if a
 # newly-added city isn't listed here yet.
-display_names <- list(nyc = "New York City", chicago = "Chicago", paris = "Paris")
+display_names <- list(nyc = "New York City", chicago = "Chicago", paris = "Paris", bart = "BART")
 pretty_name <- function(id) {
   if (!is.null(display_names[[id]])) return(display_names[[id]])
   tools::toTitleCase(gsub("[-_]+", " ", id))
