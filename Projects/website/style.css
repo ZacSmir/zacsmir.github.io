@@ -120,7 +120,10 @@ main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
 
 .examples-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
 @media (max-width: 560px) { .examples-row { grid-template-columns: repeat(2, 1fr); } }
-.example-tile { text-align: center; }
+/* min-width: 0 overrides the grid default (auto, i.e. content's max-content size) -- without
+   it, .names' nowrap text forces this tile's whole column wider than its 1fr share whenever a
+   station-pair name is long, throwing off alignment against the other column in the row. */
+.example-tile { text-align: center; min-width: 0; }
 .example-tile .cap { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
 .example-tile .len { font-size: 0.85rem; font-weight: 600; }
 .example-tile .names { font-size: 0.68rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
