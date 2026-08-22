@@ -224,9 +224,52 @@ for (city_dir_name in selected) {
   systems[[sys$id]] <- sys
 }
 
+# ================= Basemap: one static image per system, fetched once =================
+
+# Pre-fetched and saved locally instead of requested live from the browser (Esri's export
+# endpoint is a live third-party render, slower and less reliable than a same-origin static
+# file). Padded 1x past the system's own stop extent in every direction, matching the pan
+# limit app.js enforces (translateExtent) -- the bbox is written into the system's own JSON so
+# app.js positions the image without needing to know how it was fetched.
+options(timeout = 120) # denser systems (e.g. Paris) can take longer than R's 60s default to render
+BASEMAP_URL <- "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/export"
+lonlat_to_webmerc <- function(lon, lat) {
+  R <- 6378137
+  c(lon * pi / 180 * R, R * log(tan(pi / 4 + lat * pi / 360)))
+}
+
+# 3000px is the largest export this service reliably returns -- 4096 times out.
+fetch_basemap <- function(sys, out_dir) {
+  lons <- sapply(sys$stops, `[[`, "lon"); lats <- sapply(sys$stops, `[[`, "lat")
+  lon_span <- max(lons) - min(lons); lat_span <- max(lats) - min(lats)
+  bbox <- list(minLon = min(lons) - lon_span, maxLon = max(lons) + lon_span,
+               minLat = min(lats) - lat_span, maxLat = max(lats) + lat_span)
+
+  out_path <- file.path(out_dir, "basemaps", paste0(sys$id, ".png"))
+  if (file.exists(out_path)) {
+    cat(sprintf("  [%s] basemap already present, skipping fetch\n", sys$id))
+  } else {
+    dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
+    clat <- (bbox$minLat + bbox$maxLat) / 2
+    width_km <- (bbox$maxLon - bbox$minLon) * 111.32 * cos(clat * pi / 180)
+    height_km <- (bbox$maxLat - bbox$minLat) * 111.32
+    export_scale <- 3000 / max(width_km, height_km)
+    export_w <- round(width_km * export_scale); export_h <- round(height_km * export_scale)
+
+    xy_min <- lonlat_to_webmerc(bbox$minLon, bbox$minLat)
+    xy_max <- lonlat_to_webmerc(bbox$maxLon, bbox$maxLat)
+    url <- sprintf("%s?bbox=%f,%f,%f,%f&bboxSR=3857&imageSR=3857&size=%d,%d&format=png32&transparent=true&f=image",
+                    BASEMAP_URL, xy_min[1], xy_min[2], xy_max[1], xy_max[2], export_w, export_h)
+    download.file(url, out_path, mode = "wb", quiet = TRUE)
+    cat(sprintf("  [%s] fetched basemap (%dx%d)\n", sys$id, export_w, export_h))
+  }
+  bbox
+}
+
 # ================= Write output =================
 
 for (sys in systems) {
+  sys$basemap <- fetch_basemap(sys, out_dir)
   write_json(sys, file.path(out_dir, paste0(sys$id, ".json")), auto_unbox = TRUE, digits = 6)
   cat(sprintf("%-12s %4d segments  %4d stations  %3d lines  %8.1f km track\n",
               sys$id, sys$stats$num_segments, sys$stats$num_stations, sys$stats$num_lines, sys$stats$total_track_km))

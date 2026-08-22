@@ -59,10 +59,12 @@ async function loadSystem(id) {
 // (the exact class of bug fixed earlier for plain page scroll, now relevant again for zoom).
 // touch-action: pan-y tells the browser itself to keep handling one-finger vertical swipes
 // natively, so JS never even sees them as pan attempts.
-// `onZoom(k)` is an optional extra per-tick callback for anything that also needs to stay a
-// constant screen size but isn't a stroke -- e.g. circle radius, which `vector-effect:
+// `onZoom(transform)` is an optional extra per-tick callback for anything that also needs to
+// track the current transform but isn't a stroke -- e.g. circle radius, which `vector-effect:
 // non-scaling-stroke` (used for line width, see style.css) doesn't cover.
-function attachZoom(svg, g, { scaleExtent = [1, 8], onZoom } = {}) {
+// `translateExtent`, when given, caps how far the content can be panned (in its own untransformed
+// coordinate space) -- used to keep a system map's static basemap image always in frame.
+function attachZoom(svg, g, { scaleExtent = [1, 8], translateExtent, onZoom } = {}) {
   const zoom = d3.zoom()
     .scaleExtent(scaleExtent)
     .filter((event) => {
@@ -72,8 +74,9 @@ function attachZoom(svg, g, { scaleExtent = [1, 8], onZoom } = {}) {
     })
     .on("zoom", (event) => {
       g.attr("transform", event.transform);
-      if (onZoom) onZoom(event.transform.k);
+      if (onZoom) onZoom(event.transform);
     });
+  if (translateExtent) zoom.translateExtent(translateExtent);
   svg.style("touch-action", "pan-y").style("cursor", "grab").call(zoom);
   return zoom;
 }
@@ -171,6 +174,19 @@ function renderSystemMap(container, sys) {
 
   const zoomLayer = svg.append("g").attr("class", "zoom-layer");
 
+  // Basemap is a static image pre-fetched at data-prep time (see prepare_data.R), covering a
+  // padded box (1x the system's own stop extent past each edge) -- same-origin and cacheable,
+  // instead of a live cross-origin request to Esri on every page load. sys.basemap is that same
+  // padded box in lon/lat, written alongside the image; translateExtent below caps panning to
+  // it so the image can never run out of coverage at the edges.
+  const bm = sys.basemap;
+  const [bx0, by0] = projection([bm.minLon, bm.maxLat]);
+  const [bx1, by1] = projection([bm.maxLon, bm.minLat]);
+  zoomLayer.append("image")
+    .attr("href", `data/basemaps/${sys.id}.png`)
+    .attr("x", bx0).attr("y", by0).attr("width", bx1 - bx0).attr("height", by1 - by0)
+    .attr("preserveAspectRatio", "none");
+
   zoomLayer.append("g").attr("fill", "none").attr("stroke-width", 2)
     .attr("stroke-linecap", "round").attr("stroke-linejoin", "round")
     .selectAll("path").data(sys.routes).join("path")
@@ -198,7 +214,10 @@ function renderSystemMap(container, sys) {
     .on("mousemove", (event) => showTooltip(tooltip().html(), event))
     .on("mouseleave", hideTooltip);
 
-  attachZoom(svg, zoomLayer, { onZoom: (k) => stopDots.attr("r", STOP_R / Math.cbrt(k)) });
+  attachZoom(svg, zoomLayer, {
+    translateExtent: [[bx0, by0], [bx1, by1]],
+    onZoom: (t) => stopDots.attr("r", STOP_R / Math.cbrt(t.k)),
+  });
 }
 
 // ---------- Example (min/median/mean/max) segment shapes ----------
@@ -258,8 +277,6 @@ function renderStats(container, sys) {
   const tiles = [
     ["Segments", s.num_segments], ["Stations", s.num_stations], ["Lines", s.num_lines],
     ["Track length", fmtKm(s.total_track_km, 1)],
-    ["Shortest segment", fmtKm(s.min_km)], ["Median segment", fmtKm(s.median_km)],
-    ["Mean segment", fmtKm(s.mean_km)], ["Longest segment", fmtKm(s.max_km)],
   ];
   tiles.forEach(([label, value]) => {
     const t = container.append("div").attr("class", "stat-tile");
