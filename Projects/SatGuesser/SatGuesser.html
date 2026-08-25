@@ -437,12 +437,37 @@ const practiceBtn = document.getElementById('practiceBtn');
 const unitKmBtn = document.getElementById('unitKmBtn');
 const unitMiBtn = document.getElementById('unitMiBtn');
 
+const BAG_REFILL_FRACTION = 1/3; // reshuffle once this fraction of CITIES has been dealt
+
+let practiceBag = [];
+let practiceDrawsLeft = 0;
+
+function shuffled(arr){
+  const out = arr.slice();
+  for(let i = out.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+function refillPracticeBag(){
+  practiceBag = shuffled(CITIES);
+  practiceDrawsLeft = Math.ceil(CITIES.length * BAG_REFILL_FRACTION);
+}
+
+function pickCityPractice(){
+  if(practiceDrawsLeft <= 0) refillPracticeBag();
+  practiceDrawsLeft--;
+  return practiceBag.pop();
+}
+
 function pickCity(){
   if(mode === "daily"){
     const rand = mulberry32(todaySeed());
     return CITIES[Math.floor(rand()*CITIES.length)];
   }
-  return CITIES[Math.floor(Math.random()*CITIES.length)];
+  return pickCityPractice();
 }
 
 function showGuessDetail(g){
