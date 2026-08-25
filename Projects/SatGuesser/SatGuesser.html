@@ -141,10 +141,13 @@
     overflow:hidden;
     box-shadow:0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.10);
     position:relative;
+    touch-action:none;
+    overscroll-behavior:none;
   }
   #map{
     width:100%;
     height:min(62vw, 460px);
+    touch-action:none;
   }
 
   .marker-pin{
@@ -373,6 +376,15 @@
 <script src="cities.js"></script>
 
 <script>
+
+/* ======================= MOBILE GESTURE LOCKDOWN =======================
+   iOS/Safari ignore the viewport meta's user-scalable=no and fire their own
+   legacy gesturestart/change/end events for pinch, bypassing touch-action
+   and Leaflet's own zoom/bounds limits (native page zoom, then free pan).
+   Blocking those events forces pinch to go through Leaflet's own handlers. */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>{
+  document.addEventListener(ev, e=> e.preventDefault());
+});
 
 /* ======================= HELPERS ======================= */
 function mulberry32(seed){
