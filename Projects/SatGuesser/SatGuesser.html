@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SatGuessR — Guess the City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  .site-nav{
+    position:absolute;
+    top:10px;
+    right:10px;
+    display:flex;
+    gap:12px;
+  }
+  .back-link{
+    color:#0000EE;
+    text-decoration:none;
+    font-size:0.9rem;
+  }
+  .back-link:hover{text-decoration:underline;}
+  :root{
+    --bg:#f6f6f4;
+    --card:#ffffff;
+    --ink:#1c1c1e;
+    --muted:#8a8a90;
+    --gray:#dcdce0;
+    --red:#e14b3f;
+    --red-deep:#b8382e;
+    --green:#33b17a;
+    --yellow:#e8a93c;
+    --line:#e8e8e6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:28px 14px 60px;
+  }
+  .wrap{
+    width:100%;
+    max-width:720px;
+  }
+  .top{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .brand{
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .status{
+    font-family:'Quicksand',sans-serif;
+    font-weight:600;
+    font-size:22px;
+    line-height:1.3;
+    min-height:29px;
+  }
+  .mode-row{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .pillbtn{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    padding:7px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .pillbtn:hover{border-color:var(--ink);}
+  .pillbtn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .bubbles{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:20px 0 20px;
+  }
+  .bubble{
+    width:44px;height:44px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    background:var(--card);
+    color:var(--gray);
+    border:2px solid var(--gray);
+    box-shadow:0 0 0 1.5px #111;
+    transition:all .3s cubic-bezier(.4,0,.2,1);
+    cursor:pointer;
+  }
+  .bubble.wrong{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+    animation:pop .35s ease;
+  }
+  .bubble.close{
+    background:var(--yellow);
+    border-color:var(--yellow);
+    color:#fff;
+    animation:pop .35s ease;
+  }
+  .bubble.right{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+    animation:pop .35s ease;
+  }
+  @keyframes pop{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.22);}
+    100%{transform:scale(1);}
+  }
+
+  .map-card{
+    background:#0a1424;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.10);
+    position:relative;
+  }
+  #map{
+    width:100%;
+    height:min(62vw, 460px);
+  }
+
+  .marker-pin{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:default;
+    transform:translateY(0);
+  }
+  .marker-label{
+    font-family:'Quicksand',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:#fff;
+    background:rgba(10,14,20,.82);
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+    margin-bottom:5px;
+    box-shadow:0 2px 6px rgba(0,0,0,.35);
+  }
+  .marker-label.target-label{font-weight:700;font-size:14px;}
+  .marker-label.label-hidden{display:none;}
+  .marker-dot{
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--red);
+    border:1.5px solid #000;
+    box-shadow:0 1px 4px rgba(0,0,0,.5);
+  }
+  .marker-dot.close{
+    background:var(--yellow);
+  }
+  .marker-target{
+    width:28px;height:28px;
+    border-radius:50%;
+    background:#111;
+    border:1.5px solid #000;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    box-shadow:0 1px 4px rgba(0,0,0,.5);
+    transition:background .4s ease;
+  }
+  .marker-target.target-won{
+    background:var(--green);
+  }
+
+  .hint-row{
+    padding:10px 4px 0;
+    min-height:24px;
+    text-align:center;
+    font-size:14px;
+    color:var(--muted);
+  }
+  .hint-row.show-feedback{color:var(--ink);font-weight:600;}
+
+  .unit-toggle{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:7px;
+    margin-top:4px;
+  }
+  .unit-label{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:600;
+    margin-right:2px;
+  }
+  .unit-pill{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--muted);
+    padding:4px 11px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .unit-pill.active{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+
+  .guess-row{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    position:relative;
+  }
+  .guess-input-wrap{
+    flex:1;
+    position:relative;
+  }
+  #guessInput{
+    width:100%;
+    padding:14px 16px;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    background:var(--card);
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  #guessInput:focus{border-color:var(--ink);}
+  #guessInput:disabled{background:#f0f0ee;color:var(--muted);}
+
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;right:0;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.10);
+    max-height:328px;
+    overflow-y:auto;
+    z-index:5000;
+    display:none;
+  }
+  .suggestions.open{display:block;}
+  .suggestion-item{
+    padding:11px 16px;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .suggestion-item:hover, .suggestion-item.active{background:#f2f2f0;}
+
+  #guessBtn{
+    padding:14px 22px;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    background:var(--ink);
+    color:#fff;
+    cursor:pointer;
+    transition:opacity .15s ease;
+  }
+  #guessBtn:disabled{opacity:.35;cursor:default;}
+  #guessBtn:not(:disabled):hover{opacity:.88;}
+
+  .footer-row{
+    display:flex;
+    justify-content:center;
+    margin-top:22px;
+  }
+  .newround{
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    background:transparent;
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    padding:11px 24px;
+    border-radius:999px;
+    cursor:pointer;
+    display:none;
+  }
+  .newround.show{display:inline-block;}
+  .newround:hover{background:var(--ink);color:#fff;}
+
+  .leaflet-custom-marker{background:transparent;border:none;}
+  .leaflet-container{font-family:'Inter',sans-serif;}
+
+  @media (max-width:480px){
+    .status{font-size:18px;}
+    .bubble{width:38px;height:38px;font-size:14px;}
+    .guess-row{flex-direction:column;}
+    #guessBtn{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="site-nav">
+  <a href="../../index.html" class="back-link">Home</a>
+  <a href="../projects.html" class="back-link">Return to Projects</a>
+</div>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">SatGuessR</div>
+    <div class="status" id="statusText">Loading today's city…</div>
+    <div class="mode-row">
+      <button class="pillbtn active" id="dailyBtn">Daily</button>
+      <button class="pillbtn" id="practiceBtn">Practice</button>
+    </div>
+  </div>
+
+  <div class="guess-row">
+    <div class="guess-input-wrap">
+      <input id="guessInput" type="text" placeholder="Name a city…" autocomplete="off" spellcheck="false" disabled>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <button id="guessBtn" disabled>Guess</button>
+  </div>
+
+  <div class="bubbles" id="bubbles"></div>
+
+  <div class="map-card">
+    <div id="map"></div>
+  </div>
+
+  <div class="hint-row" id="hintRow">Zoom in for a closer look, then type your guess above.</div>
+
+  <div class="unit-toggle">
+    <span class="unit-label">Units</span>
+    <button class="unit-pill" id="unitKmBtn" data-unit="km">km</button>
+    <button class="unit-pill active" id="unitMiBtn" data-unit="mi">mi</button>
+  </div>
+
+  <div class="footer-row">
+    <button class="newround" id="newRoundBtn">Play another round</button>
+  </div>
+</div>
+
+<script src="cities.js"></script>
+
+<script>
+
+/* ======================= HELPERS ======================= */
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function todaySeed(){
+  const d = new Date();
+  return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+}
+function cityLabel(c){
+  return `${c[0]}, ${c[1]}`;
+}
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+const ZOOM_STAGES = [15.2, 12.5, 10, 7.5, 5.5, 4, 2];
+const MAX_GUESSES = 6;
+const CLOSE_THRESHOLD_KM = 620 * 1.60934; // ~998 km
+
+/* ======================= GAME STATE ======================= */
+let map, tileLayer, markers = [], targetMarker = null;
+let target, guessesMade, over, mode = "daily";
+let unit = "mi", displayedGuess = null, showingGuessDetail = false, guessHistory = [];
+
+function formatDistance(km){
+  if(unit === "mi"){
+    return `${Math.round(km / 1.60934).toLocaleString()} mi`;
+  }
+  return `${Math.round(km).toLocaleString()} km`;
+}
+
+const statusText = document.getElementById('statusText');
+const bubblesEl = document.getElementById('bubbles');
+const guessInput = document.getElementById('guessInput');
+const guessBtn = document.getElementById('guessBtn');
+const suggestionsEl = document.getElementById('suggestions');
+const hintRow = document.getElementById('hintRow');
+const newRoundBtn = document.getElementById('newRoundBtn');
+const dailyBtn = document.getElementById('dailyBtn');
+const practiceBtn = document.getElementById('practiceBtn');
+const unitKmBtn = document.getElementById('unitKmBtn');
+const unitMiBtn = document.getElementById('unitMiBtn');
+
+function pickCity(){
+  if(mode === "daily"){
+    const rand = mulberry32(todaySeed());
+    return CITIES[Math.floor(rand()*CITIES.length)];
+  }
+  return CITIES[Math.floor(Math.random()*CITIES.length)];
+}
+
+function showGuessDetail(g){
+  if(!g) return;
+  if(g.correct){
+    hintRow.textContent = `🎯 ${g.name} — that's the target!`;
+    hintRow.classList.add('show-feedback');
+    showingGuessDetail = false;
+    displayedGuess = null;
+  } else {
+    displayedGuess = g;
+    showingGuessDetail = true;
+    hintRow.textContent = `${g.name} → ${formatDistance(g.distKm)} from the target`;
+    hintRow.classList.add('show-feedback');
+  }
+}
+
+function buildBubbles(){
+  bubblesEl.innerHTML = "";
+  for(let i=0;i<MAX_GUESSES;i++){
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.textContent = i+1;
+    b.addEventListener('click', ()=> showGuessDetail(guessHistory[i]));
+    bubblesEl.appendChild(b);
+  }
+}
+
+function clearMarkers(){
+  markers.forEach(m=>m.remove());
+  markers = [];
+}
+
+function addMarker(lat,lon,label,isTarget,revealed=true,close=false){
+  const el = document.createElement('div');
+  el.className = 'marker-pin';
+  const labelEl = document.createElement('div');
+  labelEl.className = 'marker-label' + (isTarget ? ' target-label' : '') + (revealed ? '' : ' label-hidden');
+  labelEl.textContent = label;
+  const dotEl = document.createElement('div');
+  if(isTarget){
+    dotEl.className = 'marker-target';
+    dotEl.textContent = '?';
+  } else {
+    dotEl.className = 'marker-dot' + (close ? ' close' : '');
+  }
+  el.appendChild(labelEl);
+  el.appendChild(dotEl);
+  const icon = L.divIcon({html: el.outerHTML, className: 'leaflet-custom-marker', iconSize: [0,0], iconAnchor: [0,34]});
+  const marker = L.marker([lat,lon], {icon}).addTo(map);
+  markers.push(marker);
+  return marker;
+}
+
+function revealTargetMarker(won){
+  if(!targetMarker) return;
+  const el = targetMarker.getElement();
+  if(!el) return;
+  const label = el.querySelector('.marker-label');
+  if(label) label.classList.remove('label-hidden');
+  if(won){
+    const dot = el.querySelector('.marker-target');
+    if(dot) dot.classList.add('target-won');
+  }
+}
+
+function lockBoundsToStage(zoom){
+  // Compute the exact box visible at this zoom/center, independent of current pan/zoom,
+  // then lock panning to it (even if the player zooms in further).
+  const size = map.getSize();
+  const centerPoint = map.project([target[2],target[3]], zoom);
+  const nw = map.unproject([centerPoint.x - size.x/2, centerPoint.y - size.y/2], zoom);
+  const se = map.unproject([centerPoint.x + size.x/2, centerPoint.y + size.y/2], zoom);
+  map.setMaxBounds(L.latLngBounds(nw, se));
+}
+
+function setBoxed(boxed){
+  tileLayer.options.noWrap = boxed;
+  tileLayer.redraw();
+}
+
+function startRound(){
+  target = pickCity();
+  guessesMade = 0;
+  over = false;
+  displayedGuess = null;
+  showingGuessDetail = false;
+  guessHistory = [];
+  clearMarkers();
+  buildBubbles();
+  newRoundBtn.classList.remove('show');
+  guessInput.disabled = false;
+  guessBtn.disabled = false;
+  guessInput.value = "";
+  hintRow.textContent = "Zoom in for a closer look, then type your guess above.";
+  hintRow.classList.remove('show-feedback');
+  statusText.textContent = mode === "daily" ? "Today's city — guess 1 of 6" : "Practice round — guess 1 of 6";
+
+  const z = ZOOM_STAGES[0];
+  if(map){
+    setBoxed(true);
+    map.setMaxBounds(null);
+    map.setMinZoom(1);
+    map.setView([target[2],target[3]], z, {animate:false});
+    map.setMinZoom(z);
+    lockBoundsToStage(z);
+  }
+  targetMarker = addMarker(target[2], target[3], cityLabel(target), true, false);
+}
+
+function endRound(won){
+  over = true;
+  guessInput.disabled = true;
+  guessBtn.disabled = true;
+  suggestionsEl.classList.remove('open');
+  const finalZoom = ZOOM_STAGES[ZOOM_STAGES.length-1];
+  map.setMaxBounds(null);
+  map.setMinZoom(2);
+  map.flyTo([target[2],target[3]], finalZoom, {duration:0.7});
+  map.once('moveend', ()=> setBoxed(false));
+  revealTargetMarker(won);
+  newRoundBtn.classList.add('show');
+  statusText.textContent = won
+    ? `You found it — ${target[0]}, ${target[1]}`
+    : `The city was ${target[0]}, ${target[1]}`;
+  hintRow.textContent = won ? "🎉 Nicely spotted." : "Better luck next round.";
+  hintRow.classList.add('show-feedback');
+  showingGuessDetail = false;
+}
+
+function submitGuess(cityObj){
+  if(over || !cityObj) return;
+  const isCorrect = cityObj[0] === target[0] && cityObj[1] === target[1];
+  const bubbles = bubblesEl.children;
+
+  if(isCorrect){
+    bubbles[guessesMade].classList.add('right');
+    guessHistory[guessesMade] = {name: cityLabel(cityObj), correct: true};
+    guessesMade++;
+    endRound(true);
+    return;
+  }
+
+  const dist = haversine(cityObj[2],cityObj[3],target[2],target[3]);
+  const isClose = dist <= CLOSE_THRESHOLD_KM;
+  bubbles[guessesMade].classList.add(isClose ? 'close' : 'wrong');
+  addMarker(cityObj[2], cityObj[3], cityLabel(cityObj), false, true, isClose);
+
+  guessHistory[guessesMade] = {name: cityLabel(cityObj), distKm: dist, correct: false};
+  guessesMade++;
+
+  displayedGuess = {name: cityLabel(cityObj), distKm: dist};
+  showingGuessDetail = true;
+  hintRow.textContent = `${cityLabel(cityObj)} → ${formatDistance(dist)} from the target`;
+  hintRow.classList.add('show-feedback');
+
+  if(guessesMade >= MAX_GUESSES){
+    endRound(false);
+    return;
+  }
+
+  const z = ZOOM_STAGES[guessesMade];
+  map.setMaxBounds(null);
+  map.setMinZoom(1);
+  map.flyTo([target[2],target[3]], z, {duration:0.9});
+  map.once('moveend', ()=>{ map.setMinZoom(z); lockBoundsToStage(z); });
+
+  statusText.textContent = (mode === "daily" ? "Today's city" : "Practice round") + ` — guess ${guessesMade+1} of 6`;
+  guessInput.value = "";
+  guessInput.focus();
+}
+
+/* ======================= AUTOCOMPLETE ======================= */
+let activeIndex = -1;
+let currentMatches = [];
+
+function renderSuggestions(query){
+  const q = query.trim().toLowerCase();
+  if(!q){ suggestionsEl.classList.remove('open'); currentMatches=[]; return; }
+  currentMatches = CITIES.filter(c => c[0].toLowerCase().includes(q) || c[1].toLowerCase().includes(q)).slice(0,12);
+  activeIndex = -1;
+  if(currentMatches.length === 0){ suggestionsEl.classList.remove('open'); return; }
+  suggestionsEl.innerHTML = "";
+  currentMatches.forEach((c,i)=>{
+    const item = document.createElement('div');
+    item.className = 'suggestion-item';
+    item.textContent = cityLabel(c);
+    item.addEventListener('mousedown', (e)=>{
+      e.preventDefault();
+      selectCity(c);
+    });
+    suggestionsEl.appendChild(item);
+  });
+  suggestionsEl.classList.add('open');
+}
+
+function selectCity(c){
+  guessInput.value = cityLabel(c);
+  suggestionsEl.classList.remove('open');
+  guessInput.dataset.selected = c[0]+"|"+c[1];
+}
+
+guessInput.addEventListener('input', ()=>{
+  delete guessInput.dataset.selected;
+  renderSuggestions(guessInput.value);
+});
+
+guessInput.addEventListener('keydown', (e)=>{
+  if(!suggestionsEl.classList.contains('open')) {
+    if(e.key === 'Enter') attemptSubmitFromInput();
+    return;
+  }
+  const items = suggestionsEl.children;
+  if(e.key === 'ArrowDown'){ e.preventDefault(); activeIndex = Math.min(activeIndex+1, items.length-1); updateActive(items); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIndex = Math.max(activeIndex-1, 0); updateActive(items); }
+  else if(e.key === 'Enter'){
+    e.preventDefault();
+    if(activeIndex >= 0 && currentMatches[activeIndex]) selectCity(currentMatches[activeIndex]);
+    else attemptSubmitFromInput();
+  } else if(e.key === 'Escape'){
+    suggestionsEl.classList.remove('open');
+  }
+});
+function updateActive(items){
+  Array.from(items).forEach((it,i)=> it.classList.toggle('active', i===activeIndex));
+}
+
+function attemptSubmitFromInput(){
+  const val = guessInput.value.trim();
+  if(!val) return;
+  let match = null;
+  if(guessInput.dataset.selected){
+    const [n,c] = guessInput.dataset.selected.split("|");
+    match = CITIES.find(x=>x[0]===n && x[1]===c);
+  }
+  if(!match){
+    match = CITIES.find(c => c[0].toLowerCase() === val.toLowerCase() || cityLabel(c).toLowerCase() === val.toLowerCase());
+  }
+  if(!match){
+    hintRow.textContent = "Pick a city from the suggestions list.";
+    hintRow.classList.remove('show-feedback');
+    return;
+  }
+  submitGuess(match);
+}
+
+guessBtn.addEventListener('click', attemptSubmitFromInput);
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.guess-input-wrap')) suggestionsEl.classList.remove('open');
+});
+
+/* ======================= MODE SWITCH ======================= */
+dailyBtn.addEventListener('click', ()=>{
+  mode = "daily";
+  dailyBtn.classList.add('active');
+  practiceBtn.classList.remove('active');
+  startRound();
+});
+practiceBtn.addEventListener('click', ()=>{
+  mode = "practice";
+  practiceBtn.classList.add('active');
+  dailyBtn.classList.remove('active');
+  startRound();
+});
+newRoundBtn.addEventListener('click', ()=>{
+  if(mode === "daily"){ mode = "practice"; dailyBtn.classList.remove('active'); practiceBtn.classList.add('active'); }
+  startRound();
+});
+
+/* ======================= UNIT TOGGLE ======================= */
+function setUnit(u){
+  unit = u;
+  unitKmBtn.classList.toggle('active', u === 'km');
+  unitMiBtn.classList.toggle('active', u === 'mi');
+  if(showingGuessDetail && displayedGuess){
+    hintRow.textContent = `${displayedGuess.name} → ${formatDistance(displayedGuess.distKm)} from the target`;
+  }
+}
+unitKmBtn.addEventListener('click', ()=> setUnit('km'));
+unitMiBtn.addEventListener('click', ()=> setUnit('mi'));
+
+/* ======================= MAP INIT ======================= */
+const WORLD_BOUNDS = L.latLngBounds([-85, -180], [85, 180]);
+
+function initMap(){
+  map = L.map('map', {
+    center: [20,0],
+    zoom: 1,
+    minZoom: 1,
+    maxZoom: 19,
+    maxBounds: WORLD_BOUNDS,
+    maxBoundsViscosity: 1.0,
+    zoomControl: true,
+    attributionControl: true
+  });
+  tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    maxNativeZoom: 19,
+    noWrap: true,
+    bounds: WORLD_BOUNDS,
+    attribution: 'Tiles &copy; Esri &mdash; Esri, Maxar, Earthstar Geographics'
+  }).addTo(map);
+  startRound();
+}
+
+initMap();
+</script>
+</body>
+</html>
