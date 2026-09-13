@@ -140,6 +140,7 @@ const CITIES = [
   ["Curitiba","Brazil",-25.4296,-49.2713],
   ["Recife","Brazil",-8.0585,-34.8848],
   ["Kazan","Russia",55.7946,49.1115],
+  ["Sao Paolo","Brazil",-23.6011,-46.6922],
   ["Bandung City","Indonesia",-6.9218,107.6071],
   ["Palembang","Indonesia",-2.9888,104.7569],
   ["Osaka","Japan",34.6938,135.5015],
