@@ -237,11 +237,11 @@
             </a>
 
             <!-- Latest Substack Post (populated dynamically) -->
-            <a href="#" class="infobox" id="substack-post" style="display:none">
-                <div class="infobox-image" style="background-color:#000;width:100%;height:200px;"></div>
+            <a href="https://readingthings.substack.com/p/an-ignoramus-review-of-verdis-macbeth" class="infobox" id="substack-post">
+                <img src="https://substackcdn.com/image/fetch/$s_!_3fg!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F3d55a962-8c85-4a2c-a7e4-33cb60ff14eb_2560x1920.jpeg" alt="An Ignoramus’ Review of Verdi’s Macbeth at the Metropolitan Opera" class="infobox-image">
                 <div class="infobox-content">
-                    <h2 class="infobox-title"></h2>
-                    <p class="infobox-blurb"></p>
+                    <h2 class="infobox-title">An Ignoramus’ Review of Verdi’s Macbeth at the Metropolitan Opera</h2>
+                    <p class="infobox-blurb">Or how I learned to stop worrying and love Supertitles and Risorgimento</p>
                 </div>
             </a>
 
@@ -327,14 +327,11 @@
                     const img = document.createElement('img');
                     img.className = 'infobox-image';
                     img.alt = title;
-                    img.onload = () => substackBox.querySelector('div.infobox-image').replaceWith(img);
+                    img.onload = () => substackBox.querySelector('.infobox-image').replaceWith(img);
                     img.src = imageUrl;
                 }
             } catch (error) {
-                substackBox.href = 'https://readingthings.substack.com/';
-                substackBox.querySelector('.infobox-title').textContent = 'Latest from Substack';
-                substackBox.querySelector('.infobox-blurb').textContent = 'Read my latest posts on Substack.';
-                substackBox.style.display = 'block';
+                // keep the hardcoded card content
             }
         }
         fetchLatestSubstackPost();
