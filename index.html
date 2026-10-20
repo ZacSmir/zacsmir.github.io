@@ -236,8 +236,26 @@
                 </div>
             </a>
 
-            <!-- Latest Substack Post (populated dynamically) -->
-            <a href="https://readingthings.substack.com/p/an-ignoramus-review-of-verdis-macbeth" class="infobox" id="substack-post">
+            <!-- Substack: Pierre Menard episode -->
+            <a href="https://readingthings.substack.com/p/was-cleopatra-irish-or-was-saint" class="infobox">
+                <img src="https://substackcdn.com/image/fetch/$s_!5Y1x!,f_auto,q_auto:best,fl_progressive:steep/https%3A%2F%2Freadingthings.substack.com%2Ftwitter%2Fsubscribe-card.jpg%3Fv%3D368912250%26version%3D9" alt="Was Cleopatra Irish or was Saint George a Whaler?" class="infobox-image">
+                <div class="infobox-content">
+                    <h2 class="infobox-title">Was Cleopatra Irish or was Saint George a Whaler?</h2>
+                    <p class="infobox-blurb">Episode One of Pierre Menard’s Literary Criticism</p>
+                </div>
+            </a>
+
+            <!-- Bug Comix -->
+            <a href="https://bugcomics.webcomic.ws" class="infobox">
+                <img src="Art/Art_images/Bugs.png" alt="Bug Comix" class="infobox-image">
+                <div class="infobox-content">
+                    <h2 class="infobox-title">Bug Comix</h2>
+                    <p class="infobox-blurb">comics made by photographing paper bug dioramas</p>
+                </div>
+            </a>
+
+            <!-- Substack: Macbeth review -->
+            <a href="https://readingthings.substack.com/p/an-ignoramus-review-of-verdis-macbeth" class="infobox">
                 <img src="https://substackcdn.com/image/fetch/$s_!_3fg!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F3d55a962-8c85-4a2c-a7e4-33cb60ff14eb_2560x1920.jpeg" alt="An Ignoramus’ Review of Verdi’s Macbeth at the Metropolitan Opera" class="infobox-image">
                 <div class="infobox-content">
                     <h2 class="infobox-title">An Ignoramus’ Review of Verdi’s Macbeth at the Metropolitan Opera</h2>
@@ -280,62 +298,10 @@
                 </div>
             </a>
 
-            <!-- Bug Comix -->
-            <a href="https://bugcomics.webcomic.ws" class="infobox">
-                <img src="Art/Art_images/Bugs.png" alt="Bug Comix" class="infobox-image">
-                <div class="infobox-content">
-                    <h2 class="infobox-title">Bug Comix</h2>
-                    <p class="infobox-blurb">comics made by photographing paper bug dioramas</p>
-                </div>
-            </a>
-
         <!-- Add more infoboxes by copying the structure above -->
 
         </div>
     </main>
-
-    <script>
-        async function fetchLatestSubstackPost() {
-            const substackBox = document.getElementById('substack-post');
-            try {
-                const RSS_URL = 'https://corsproxy.io/?https://readingthings.substack.com/feed';
-                const response = await fetch(RSS_URL);
-                const text = await response.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, 'text/xml');
-                const item = xml.querySelector('item');
-                if (!item) throw new Error('No items');
-
-                const title = item.querySelector('title')?.textContent || 'Untitled Post';
-                const link = item.querySelector('link')?.textContent || '#';
-                const description = item.querySelector('description')?.textContent || '';
-                const content = item.querySelector('content\\:encoded, encoded')?.textContent || description;
-                // Substack's RSS gives each post's cover image via <enclosure url="...">, not
-                // necessarily as an inline <img> in the body -- text-only posts (like this one)
-                // have no inline images at all, so the enclosure is the reliable source; only
-                // fall back to scraping the body if a feed item is missing one.
-                const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-                const imageUrl = item.querySelector('enclosure')?.getAttribute('url') || (imgMatch ? imgMatch[1] : null);
-                const cleanDescription = description.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
-
-                substackBox.href = link;
-                substackBox.querySelector('.infobox-title').textContent = title;
-                substackBox.querySelector('.infobox-blurb').textContent = cleanDescription;
-                substackBox.style.display = 'block';
-
-                if (imageUrl) {
-                    const img = document.createElement('img');
-                    img.className = 'infobox-image';
-                    img.alt = title;
-                    img.onload = () => substackBox.querySelector('.infobox-image').replaceWith(img);
-                    img.src = imageUrl;
-                }
-            } catch (error) {
-                // keep the hardcoded card content
-            }
-        }
-        fetchLatestSubstackPost();
-    </script>
 
 </body>
 </html>
